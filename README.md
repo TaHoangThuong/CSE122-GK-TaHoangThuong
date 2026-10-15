@@ -25,15 +25,8 @@ Trong đề tài **BTL-32 – EventPulse**, phân hệ **Người tham dự** gi
 
 - **Tên trang:** Khám phá Session
 - **Tệp mã nguồn:** `pages/attendee-session-catalog.html`
-- **Mục đích:** Giúp người tham gia sự kiện có thể:
 
-* Xem danh sách tất cả các phiên sự kiện diễn ra trong ngày.
-* Tìm kiếm sự kiện theo từ khóa tên bài hoặc tên diễn giả.
-* Lọc sự kiện theo Ngày, Chủ đề, Diễn giả và Sức chứa còn chỗ.
-* Thêm nhanh sự kiện yêu thích vào Lịch cá nhân.
-* Xem gợi ý lịch trình thông minh từ trải nghiệm AI mô phỏng.
-
-### Các chức năng :
+### Các chức năng của trang:
 
 - [x] **Tìm kiếm & Lọc dữ liệu:** Tự động cập nhật danh sách card khi gõ từ khóa hoặc chọn filter drop-down.
 - [x] **Xử lý trạng thái sức chứa:** Hiển thị tiến trình và trạng thái.
