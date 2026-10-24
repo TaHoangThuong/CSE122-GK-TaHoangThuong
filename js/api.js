@@ -1,4 +1,3 @@
-/* Local demo repository: no backend or external AI calls. */
 (() => {
   const KEY = "eventpulse.attendee.v2";
   const LEGACY_KEY = "eventpulse.attendee.v1";

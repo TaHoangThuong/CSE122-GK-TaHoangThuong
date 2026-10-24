@@ -1,58 +1,70 @@
-# BTL-32 – EventPulse: Phân hệ Người tham dự
+# BTL-32 – EventPulse: Thiết kế trải nghiệm sự kiện nhiều phiên
 
-**Họ và tên:** Tạ Hoàng Thương
-**Mã sinh viên:** 2451170948
-**Đề tài BTL:** BTL-32 - EventPulse - Thiết kế trải nghiệm sự kiện nhiều phiên  
-**EventPulse - Người tham dự:** Dự án web độc lập cho workspace Người tham dự trong EventPulse.
+## 1. Thông tin sinh viên
 
----
-
-## 1. Tổng quan phân hệ Người tham dự trong BTL-32
-
-Trong đề tài **BTL-32 – EventPulse**, phân hệ **Người tham dự** giải quyết các vấn đề thực tế của khách tham gia sự kiện:
-
-- Giúp người dùng duyệt danh sách session dài một cách dễ dàng.
-- Tránh xung đột thời gian giữa các session bằng tính năng kiểm tra lịch cá nhân và gợi ý AI (`Conflict Resolver`, `Agenda Recommender`).
-- Các trang và chức năng:
-  - Khám phá session: tìm kiếm, lọc và mở chi tiết.
-  - Chi tiết session: xem thông tin và thêm session vào agenda.
-  - Agenda của tôi: theo dõi lịch, xử lý xung đột và danh sách chờ.
-  - Phản hồi session: gửi và quản lý đánh giá.
+- **Họ và tên:** Tạ Hoàng Thương
+- **Mã sinh viên:** 2451170948
+- **Vai trò phụ trách chính:** Người tham dự
 
 ---
 
-## 2. Phần Bài Kiểm Tra Giữa Kỳ
+## 2. Phát biểu vấn đề & Giải pháp
 
-- **Tên trang:** Khám phá Session
-- **Tệp mã nguồn:** `pages/attendee-session-catalog.html`
-- **Mục đích:** Giúp người tham gia sự kiện có thể:
+Trong các sự kiện lớn (nhiều track/session), người tham dự thường gặp khó khăn khi lịch trình bị trùng lặp, bỏ lỡ các session phù hợp với chuyên môn, hoặc khó theo dõi các thay đổi từ Ban tổ chức.
 
-* Xem danh sách tất cả các phiên sự kiện diễn ra trong ngày.
-* Tìm kiếm sự kiện theo từ khóa tên bài hoặc tên diễn giả.
-* Lọc sự kiện theo Ngày, Chủ đề, Diễn giả và Sức chứa còn chỗ.
-* Thêm nhanh sự kiện yêu thích vào Lịch cá nhân.
-* Xem gợi ý lịch trình thông minh từ trải nghiệm AI mô phỏng.
+**Phân hệ Người tham dự của EventPulse** giải quyết bằng cách:
 
-### Các chức năng :
-
-- [x] **Tìm kiếm & Lọc dữ liệu:** Tự động cập nhật danh sách card khi gõ từ khóa hoặc chọn filter drop-down.
-- [x] **Xử lý trạng thái sức chứa:** Hiển thị tiến trình và trạng thái.
-- [x] **Mô phỏng trải nghiệm AI:** Khối gợi ý lịch trình cá nhân hóa dựa trên sở thích.
-- [x] **Đặt lại bộ lọc:** Khôi phục trạng thái danh sách ban đầu chỉ bằng 1 cú click.
-- [x] **Thiết kế Responsive:** Tối ưu hiển thị giao diện chuẩn trên cả Desktop và Điện thoại di động.
+- Cung cấp **Session Catalog** trực quan để dễ dàng lọc và tìm kiếm.
+- Tích hợp **AI Agenda Recommender** để cá nhân hóa lịch trình theo sở thích.
+- Tích hợp **AI Conflict Resolver** để tự động phát hiện và gợi ý xử lý trùng lịch.
 
 ---
 
-## 3. Công nghệ sử dụng
+## 3. Bảng kiểm kê
 
-- **HTML5:** Cấu trúc Semantic HTML (`header`, `nav`, `main`, `section`, `article`, `footer`, `form`, `label`, `input`, `select`, `button`).
-- **CSS3:** Flexbox, CSS Grid, Custom Properties (`:root`), thiết kế Responsive hoàn toàn cho Desktop, Tablet và Mobile (`attendee.css`, `attendee-responsive.css`).
-- **JavaScript:** Quản lý trạng thái ứng dụng (`EP.state`), xử lý sự kiện DOM (`click`, `input`, `change`, `submit`), lưu trữ dữ liệu với `LocalStorage` và `IndexedDB`.
+| #   | Màn hình         | Tệp giao diện                    | Mục tiêu / CRUD chính                                  | Hoàn thành |
+| --- | ---------------- | -------------------------------- | ------------------------------------------------------ | :--------: |
+| 1   | Khám phá Session | `attendee-session-catalog.html`  | Xem danh sách, lọc, gợi ý AI Recommender               |     ✅     |
+| 2   | Chi tiết Session | `attendee-session-detail.html`   | Xem chi tiết, diễn giả, tải tài liệu tải liệu, đặt chỗ |     ✅     |
+| 3   | Agenda của tôi   | `attendee-my-agenda.html`        | Quản lý lịch cá nhân, xuất .ics, AI xử lý trùng lịch   |     ✅     |
+| 4   | Phản hồi Session | `attendee-session-feedback.html` | Đánh giá, chấm điểm ẩn danh, Validate form             |     ✅     |
 
 ---
 
-## 4. Nộp bài
+## 4. Các tính năng AI mô phỏng
 
-- **Link Thiết kế Figma:** (https://www.figma.com/design/jfZKB5gs2q49Zt4ZQi0ruk/EventPulse--Ng%C6%B0%E1%BB%9Di-tham-d%E1%BB%B1-?node-id=0-1&t=5uhJriKon5JJPnZO-1)
-- **Link Video YouTube:** (https://www.youtube.com/watch?v=AqiPbzTfcF0&list=PLMo1Vi5U124Y&index=1)
-- **Link GitHub Repository:** (https://github.com/TaHoangThuong/CSE122-GK-TaHoangThuong)
+Trải nghiệm AI được thiết kế theo đúng quy tắc: `Nhập -> Đang xử lý -> Kết quả -> Giải thích -> Người dùng kiểm soát`.
+
+1. **AI-1: Agenda Recommender**
+   - **Vị trí:** Trang Khám phá Session.
+   - **Mô phỏng:** Phân tích từ khóa sở thích do người dùng nhập, chấm điểm độ phù hợp của session. AI tự động loại trừ các session đã hết chỗ và kiểm tra khoảng cách di chuyển (tối thiểu 8 phút) giữa 2 session.
+2. **AI-2: Conflict Resolver**
+   - **Vị trí:** Trang Agenda của tôi.
+   - **Mô phỏng:** Quét mảng `agenda` để phát hiện trùng giờ. Gợi ý phương án: Gỡ session nhường chỗ, xem bản ghi (nếu có), hoặc giữ nguyên để tự xử lý thủ công.
+
+---
+
+## 5. Công nghệ & Kiến trúc mã nguồn
+
+- **Thiết kế UI/UX:** Figma.
+- **HTML5:** Semantic HTML, đảm bảo khả năng tiếp cận.
+- **CSS3:** Áp dụng phương pháp Hướng thành phần. Dùng Flexbox/Grid, biến `:root` và Media Queries Responsive đa thiết bị (`attendee.css`, `attendee-responsive.css`).
+- **JavaScript:**
+  - Kiến trúc Event Delegation.
+  - Quản lý State tập trung.
+- **Lưu trữ dữ liệu:** Sử dụng `LocalStorage` và `IndexedDB`.
+- **Quản lý phiên bản:** Git & GitHub.
+
+---
+
+## 6. Danh mục minh chứng
+
+- **Link bản thiết kế Figma:** (https://www.figma.com/design/jfZKB5gs2q49Zt4ZQi0ruk/EventPulse--Ng%C6%B0%E1%BB%9Di-tham-d%E1%BB%B1-?node-id=0-1&t=5uhJriKon5JJPnZO-1)
+- **Link GitHub:** (https://github.com/Do-Loc-tech/EventPulse/tree/nguoi-tham-du)
+
+### Danh sách Video OBS
+
+1. **Khám phá Session:** (https://www.youtube.com/watch?v=AqiPbzTfcF0&list=PLMo1Vi5U124Y&index=1)
+2. **Chi tiết Session:** [Chèn link YouTube Video 2]
+3. **Agenda của tôi:** [Chèn link YouTube Video 3]
+4. **Phản hồi Session:** [Chèn link YouTube Video 4]

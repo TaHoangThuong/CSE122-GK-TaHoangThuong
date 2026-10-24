@@ -1,9 +1,17 @@
+/* ========================================================
+   1. MÀN HÌNH SIÊU RỘNG
+   ======================================================== */
 @media (min-width: 1500px) {
   .cover {
     height: 145px;
   }
 }
+
+/* ========================================================
+   2. MÁY TÍNH BẢNG & DESKTOP NHỎ
+   ======================================================== */
 @media (max-width: 1150px) {
+  /* --- Workspace UI --- */
   .sidebar {
     width: 210px;
   }
@@ -16,6 +24,7 @@
   .topbar {
     padding: 0 22px;
   }
+
   .cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -25,6 +34,7 @@
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
   .list .session-card {
     display: flex;
   }
@@ -32,7 +42,47 @@
     width: 100%;
   }
 }
+
+@media (max-width: 1100px) {
+  /* --- Trang chủ (Home Page) --- */
+  .home-header {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .home-header nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero {
+    gap: 30px;
+    padding-top: 42px;
+  }
+  .hero-visual {
+    min-height: 420px;
+  }
+
+  .workspace-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .preferences-layout {
+    grid-template-columns: 1fr;
+  }
+  .home-section h2 {
+    font-size: 26px;
+  }
+  .home-footer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ========================================================
+   3. ĐIỆN THOẠI
+   Chuyển sang menu ẩn, hiển thị 1 cột
+   ======================================================== */
 @media (max-width: 720px) {
+  /* --- Layout / Shell --- */
   .sidebar {
     transform: translateX(-100%);
     width: 232px;
@@ -45,6 +95,7 @@
   .sidebar.open {
     transform: translateX(0);
   }
+
   .shell {
     margin-left: 0;
   }
@@ -55,6 +106,13 @@
     height: 66px;
     padding: 0 16px;
   }
+  .top-actions {
+    gap: 7px;
+  }
+  main {
+    padding: 22px 16px;
+  }
+
   .breadcrumb {
     max-width: 180px;
   }
@@ -65,9 +123,7 @@
   .demo-label {
     display: none;
   }
-  main {
-    padding: 22px 16px;
-  }
+
   .page-heading {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -76,6 +132,30 @@
   h1 {
     font-size: 28px;
   }
+
+  .reference-strip {
+    font-size: 8px;
+    padding: 5px 12px;
+  }
+  .reference-strip span {
+    max-width: 40%;
+  }
+  .workspace-footer {
+    margin: 0 16px;
+    flex-wrap: wrap;
+  }
+
+  #toast {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+  }
+  .skip,
+  .home-page .skip {
+    left: 16px;
+  }
+
+  /* --- UI Components (Dùng chung) --- */
   .cards,
   .grid-two,
   .form-grid {
@@ -87,6 +167,7 @@
   .panel {
     padding: 17px;
   }
+
   .toolbar label,
   .toolbar label.search {
     min-width: 100%;
@@ -101,6 +182,7 @@
   .section-line {
     flex-wrap: wrap;
   }
+
   .stats {
     gap: 10px;
   }
@@ -110,76 +192,49 @@
   .stat strong {
     font-size: 24px;
   }
-  .timeline-item {
-    gap: 12px;
-    flex-wrap: wrap;
-  }
   .bar-row {
     grid-template-columns: 100px 1fr 35px;
     gap: 8px;
   }
-  .top-actions {
-    gap: 7px;
+
+  .list .session-card {
+    display: flex;
   }
-  .detail-cover {
+  .cover {
     height: 180px;
   }
   .card-actions {
     flex-wrap: wrap;
   }
-  #toast {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-  }
-  .skip {
-    left: 16px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-@media (max-width: 1100px) {
-  .home-header {
-    flex-wrap: wrap;
-    gap: 14px;
-  }
-  .home-header nav {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-  }
-  .hero {
-    gap: 30px;
-    padding-top: 42px;
-  }
-  .hero-visual {
-    min-height: 420px;
-  }
-  .workspace-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  /* --- Các thành phần đặc thù theo trang --- */
+  .detail-cover {
+    height: 180px;
   }
   .preferences-layout {
     grid-template-columns: 1fr;
   }
-  .home-section h2 {
-    font-size: 26px;
+
+  .timeline-item {
+    gap: 12px;
+    flex-wrap: wrap;
   }
-  .home-footer {
-    grid-template-columns: repeat(2, 1fr);
+  .timeline-actions {
+    width: 100%;
   }
-}
-@media (max-width: 720px) {
-  .reference-strip {
-    font-size: 8px;
-    padding: 5px 12px;
+  .session-note {
+    padding-left: 0;
   }
-  .reference-strip span {
-    max-width: 40%;
+
+  .room-row {
+    flex-direction: column;
   }
+  .ai-steps span {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+
+  /* --- Trang chủ (Home Page) --- */
   .home-header {
     padding: 18px 16px;
     gap: 10px;
@@ -201,6 +256,7 @@
     white-space: nowrap;
     font-size: 12px;
   }
+
   .hero {
     grid-template-columns: 1fr;
     padding: 36px 20px;
@@ -212,12 +268,6 @@
   .hero h2 {
     font-size: 23px;
   }
-  .hero-visual {
-    min-height: 340px;
-  }
-  .hero-visual h2 {
-    font-size: 24px;
-  }
   .hero-numbers {
     gap: 10px;
   }
@@ -227,6 +277,14 @@
   .hero-numbers div {
     font-size: 10px;
   }
+
+  .hero-visual {
+    min-height: 340px;
+  }
+  .hero-visual h2 {
+    font-size: 24px;
+  }
+
   .intro-band {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -241,6 +299,7 @@
   .home-section .cards {
     grid-template-columns: 1fr;
   }
+
   .workspace-grid {
     grid-template-columns: 1fr;
   }
@@ -249,38 +308,10 @@
     gap: 25px;
     margin-top: 35px;
   }
+
   .home-footer {
     grid-template-columns: 1fr 1fr;
     padding: 32px 20px;
     gap: 20px;
-  }
-  .workspace-footer {
-    margin: 0 16px;
-    flex-wrap: wrap;
-  }
-  .room-row {
-    flex-direction: column;
-  }
-  .session-note {
-    padding-left: 0;
-  }
-  .ai-steps span {
-    font-size: 11px;
-    padding: 6px 9px;
-  }
-  .list .session-card {
-    display: flex;
-  }
-  .cover {
-    height: 180px;
-  }
-  .home-page .skip {
-    left: 16px;
-  }
-  .timeline-actions {
-    width: 100%;
-  }
-  .preferences-layout {
-    grid-template-columns: 1fr;
   }
 }

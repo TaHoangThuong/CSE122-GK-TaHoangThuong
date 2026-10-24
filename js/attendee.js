@@ -1,7 +1,9 @@
 (() => {
   "use strict";
+  //tìm kiếm DOM đầu tiên khớp với CSS
   const $ = (s) => document.querySelector(s),
     state = () => EP.state;
+  //kiểm tra đường dẫn url xem có chứa /pages/ ko
   const inPages = location.pathname.includes("/pages/"),
     base = inPages ? "../" : "";
   const page =
@@ -49,7 +51,9 @@
   const e = (v) =>
     String(v ?? "").replace(
       /[&<>"']/g,
-      (c) =>
+      (
+        c, //thay thế kí tự dặc biệt
+      ) =>
         ({
           "&": "&amp;",
           "<": "&lt;",
@@ -60,25 +64,27 @@
     );
   const url = (r, query = "") => `${base}pages/${r}.html${query}`;
   const link = (r, label, cls = "", query = "") =>
-    /* HTML */ `<a class="button ${cls}" href="${url(r, query)}">${label}</a>`;
+    `<a class="button ${cls}" href="${url(r, query)}">${label}</a>`;
   const btn = (action, label, id = "", cls = "") =>
-    /* HTML */ `<button
+    `<button
       type="button"
       class="${cls}"
       data-action="${action}"
       data-id="${id}"
-      ${action === "notifications"
-        ? 'aria-label="Thông báo"'
-        : action === "close"
-          ? 'aria-label="Đóng hộp thoại"'
-          : ""}
+      ${
+        action === "notifications"
+          ? 'aria-label="Thông báo"'
+          : action === "close"
+            ? 'aria-label="Đóng hộp thoại"'
+            : ""
+      }
     >
       ${label}
     </button>`;
   const badge = (text, bad = false) =>
-    /* HTML */ `<span class="status ${bad ? "bad" : ""}">${e(text)}</span>`;
+    `<span class="status ${bad ? "bad" : ""}">${e(text)}</span>`;
   const empty = (text) =>
-    /* HTML */ `<div class="empty">
+    `<div class="empty">
       <strong>${text}</strong>Thử thay đổi bộ lọc hoặc thêm dữ liệu mới.
     </div>`;
   const money = (n) => Number(n).toLocaleString("vi-VN") + " ₫";
@@ -166,13 +172,15 @@
         ${action}
       </div>`;
   }
+  //render khung giao diện chính
   function shell() {
     const title =
       route === "attendee-session-detail"
         ? "Chi tiết session"
         : groups[role][1].find(([p]) => route === role + "-" + p)?.[1] ||
           "Không tìm thấy";
-    $("#app").innerHTML = /* HTML */ `<div class="reference-strip">
+    // gán toàn bộ cấu trúc HTML vào phần tử có id app
+    $("#app").innerHTML = `<div class="reference-strip">
         CSE122 / EventPulse / ${groups[role][0]} · 4 trang
         <span>${e(route)}.html</span>
       </div>
@@ -188,19 +196,22 @@
         <nav class="nav" aria-label="Điều hướng chính">
           ${groups[role][1]
             .map(
+              //để duyệt qua danh sách các trang của role hiện tại, tự động tạo ra các thẻ a
               ([p, t, i]) =>
-                /* HTML */ `<a
+                `<a
                   href="${url(role + "-" + p)}"
                   class="${route === role + "-" + p ? "active" : ""}"
                   ${route === role + "-" + p ? 'aria-current="page"' : ""}
                   ><span class="nav-icon" aria-hidden="true">${i}</span>${t}</a
                 >`,
             )
-            .join("")}${role === "attendee"
-            ? /* HTML */ `<a href="#" data-action="notifications"
+            .join("")}${
+            role === "attendee"
+              ? `<a href="#" data-action="notifications"
                 ><span class="nav-icon">♧</span>Thông báo</a
               >`
-            : ""}
+              : ""
+          }
         </nav>
         <div class="sidebar-bottom">
           <div class="help">
@@ -231,13 +242,15 @@
               "notifications",
               "♧",
             )}<span class="avatar"
-              >${role === "attendee"
-                ? "NA"
-                : role === "speaker"
-                  ? "MA"
-                  : role === "organizer"
-                    ? "BT"
-                    : "AD"}</span
+              >${
+                role === "attendee"
+                  ? "NA"
+                  : role === "speaker"
+                    ? "MA"
+                    : role === "organizer"
+                      ? "BT"
+                      : "AD"
+              }</span
             >
           </div>
         </header>
@@ -254,7 +267,7 @@
     const saved = state().agenda.includes(s.id),
       wait = state().waitlist.includes(s.id),
       full = s.booked >= s.capacity;
-    return /* HTML */ `<article class="session-card">
+    return `<article class="session-card">
       <div class="cover">
         <img
           src="${base}assets/images/${s.image}-session.jpg"
@@ -262,19 +275,23 @@
           loading="lazy"
         /><span class="tag">${e(s.topic)}</span
         ><span
-          class="status ${full
-            ? "bad"
-            : s.booked / s.capacity > 0.9
-              ? "warn"
-              : ""}"
-          >${full
-            ? "Đã đầy"
-            : s.booked / s.capacity > 0.9
-              ? "Sắp đầy"
-              : "Còn chỗ"}</span
+          class="status ${
+            full //Đổi màu linh hoạt tùy theo tình trạng chỗ ngồi
+              ? "bad"
+              : s.booked / s.capacity > 0.9
+                ? "warn"
+                : ""
+          }"
+          >${
+            full
+              ? "Đã đầy"
+              : s.booked / s.capacity > 0.9
+                ? "Sắp đầy"
+                : "Còn chỗ"
+          }</span
         >
       </div>
-      <h3>${e(s.title)}</h3>
+      <h3>${e(s.title)} ${s.booked >= 100 ? "🔥" : ""}</h3>
       <div class="speaker-line">
         <span class="avatar"
           >${e(
@@ -289,29 +306,37 @@
       <div class="meta">
         <span>◷ ${e(s.start)}–${e(s.end)} · ${e(s.room)}</span
         ><strong
-          class="${full
+          class="${
+            full
+              ? "capacity-full"
+              : s.booked / s.capacity > 0.9
+                ? "capacity-warn"
+                : ""
+          }"
+          >${s.booked}/${s.capacity} chỗ ·
+          ${
+            full
+              ? "Đã đầy"
+              : s.booked / s.capacity > 0.9
+                ? "Sắp đầy"
+                : "Còn chỗ"
+          }</strong
+        >
+      </div>
+
+      <progress
+        class="${
+          s.booked >= s.capacity
             ? "capacity-full"
             : s.booked / s.capacity > 0.9
               ? "capacity-warn"
-              : ""}"
-          >${s.booked}/${s.capacity} chỗ ·
-          ${full
-            ? "Đã đầy"
-            : s.booked / s.capacity > 0.9
-              ? "Sắp đầy"
-              : "Còn chỗ"}</strong
-        >
-      </div>
-      <progress
-        class="${s.booked >= s.capacity
-          ? "capacity-full"
-          : s.booked / s.capacity > 0.9
-            ? "capacity-warn"
-            : ""}"
+              : ""
+        }"
         value="${s.booked}"
         max="${s.capacity}"
         aria-label="Số chỗ đã đặt"
       ></progress>
+
       <div class="card-actions">
         ${link(
           "attendee-session-detail",
@@ -333,6 +358,152 @@
       </div>
     </article>`;
   }
+  function aiPanel(title, body) {
+    return /* HTML */ `<section class="panel ai-panel">
+      <h2>✦ ${title}</h2>
+      <p class="muted">AI hỗ trợ quyết định, không thay thế bạn.</p>
+      <div class="ai-steps">
+        <span>Đầu vào</span><span>Xử lý</span><span>Kết quả</span>
+      </div>
+      ${body}
+      <p class="ai-note">
+        AI mô phỏng bằng quy tắc JavaScript. Không tự động thay đổi dữ liệu. Chỉ
+        lưu sau khi bạn xác nhận.
+      </p>
+    </section>`;
+  }
+  /* -------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------
+  ============================= 2. KHÁM PHÁ SESSION ================================
+  ----------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------*/
+
+  // Hàm render chính
+  function catalog() {
+    const pref = state().preferences;
+    $("#content").innerHTML =
+      heading(
+        "Khám phá session",
+        "Khám phá chương trình và thiết kế hành trình theo sở thích của bạn.",
+        link("attendee-my-agenda", "Agenda của tôi →", "primary"),
+      ) +
+      /* HTML */ `<div class="banner">
+          <div>
+            <strong>Chương trình cùng dữ liệu với Ban tổ chức</strong>
+            <p>
+              ${sessions().length} session công khai trong demo ·
+              ${state().sessions.length} session toàn sự kiện.
+            </p>
+          </div>
+        </div>
+        <div class="panel toolbar">
+          <label class="search"
+            >Tìm kiếm<input
+              id="search"
+              placeholder="Tìm tên session hoặc diễn giả…"
+              type="search" /></label
+          ><label
+            >Ngày<select id="date">
+              <option value="">Toàn sự kiện</option>
+              ${["2026-10-18", "2026-10-19", "2026-10-20"]
+                .map(
+                  (d) =>
+                    /* HTML */ `<option value="${d}">
+                      ${shortDate(d)}/2026
+                    </option>`,
+                )
+                .join("")}
+            </select></label
+          ><label
+            >Chủ đề<select id="topic">
+              <option value="">Tất cả chủ đề</option>
+              ${[...new Set(sessions().map((s) => s.topic))]
+                .map((t) => /* HTML */ `<option>${e(t)}</option>`)
+                .join("")}
+            </select></label
+          ><label
+            >Diễn giả<select id="speaker">
+              <option value="">Tất cả diễn giả</option>
+              ${[...new Set(sessions().map((s) => s.speaker))]
+                .map((t) => /* HTML */ `<option>${e(t)}</option>`)
+                .join("")}
+            </select></label
+          ><label
+            >Sức chứa<select id="availability">
+              <option value="">Tất cả</option>
+              <option value="available">Còn chỗ</option>
+              <option value="full">Đã đầy</option>
+            </select></label
+          >
+        </div>
+        <div class="section-line">
+          <strong id="count"></strong>
+          <div>
+            ${btn("grid", "Lưới")}${btn("list", "Danh sách")}${btn(
+              "reset-filters",
+              "Đặt lại bộ lọc",
+            )}
+          </div>
+        </div>
+        <div id="catalog" class="cards"></div>
+        <div class="two-col preferences-layout">
+          <section class="panel">
+            <h2>Sở thích của bạn</h2>
+            <form id="preferences-form" class="stack">
+              ${field(
+                "interests",
+                "Chủ đề quan tâm",
+                pref.interests,
+                "text",
+                "required",
+              )}${field("goal", "Mục tiêu", pref.goal)}${field(
+                "date",
+                "Ngày tham dự",
+                pref.date,
+                "date",
+              )}${field("start", "Bắt đầu", pref.start, "time")}${field(
+                "end",
+                "Kết thúc",
+                pref.end,
+                "time",
+              )}${select(
+                "level",
+                "Mức độ",
+                ["Cơ bản", "Trung cấp", "Chuyên sâu"],
+                pref.level,
+              )}<button class="primary" type="submit">Lưu sở thích</button
+              >${btn("recommend", "Tạo gợi ý AI", "", "primary")}
+            </form>
+            <p class="ai-note">Chỉ dùng sở thích và lịch bạn đã lưu.</p>
+          </section>
+          ${aiPanel(
+            "Agenda Recommender",
+            /* HTML */ `<div class="result">
+                <strong>Có giải thích · Bạn quyết định</strong>
+                <p>
+                  Chọn chủ đề, thời gian và mục tiêu. Gợi ý kiểm tra lịch, sức
+                  chứa và thời gian di chuyển 8 phút trước khi đề xuất.
+                </p>
+                ${btn("recommend", "Xem gợi ý", "", "primary")}
+              </div>
+              ${btn("save-ai-draft", "Lưu bản gợi ý demo", "recommend")}
+              <p>Bản gợi ý đã lưu chưa giữ chỗ.</p>`,
+          )}
+        </div>`;
+    for (const id of ["search", "date", "topic", "speaker", "availability"])
+      $("#" + id).addEventListener("input", filterCatalog);
+    const speaker = new URLSearchParams(location.search).get("speaker");
+    if (speaker) $("#speaker").value = speaker;
+    filterCatalog();
+    $("#preferences-form").addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const d = Object.fromEntries(new FormData(ev.target));
+      if (d.start >= d.end) return toast("Giờ kết thúc phải sau bắt đầu.");
+      state().preferences = d;
+      persist("Đã lưu sở thích");
+    });
+  }
+  // Các hàm logic & AI
   function filterCatalog() {
     const q = $("#search").value.trim().toLocaleLowerCase("vi");
     const rows = sessions().filter(
@@ -351,6 +522,127 @@
     $("#catalog").innerHTML =
       rows.map(card).join("") || empty("Không tìm thấy session");
   }
+  function recommend() {
+    modal(
+      "✧ Agenda Recommender",
+      /* HTML */ `<form id="recommend-form" class="stack">
+          ${field(
+            "interests",
+            "Chủ đề hoặc mục tiêu *",
+            state().preferences.interests,
+            "text",
+            'required minlength="2" maxlength="200" placeholder="Ví dụ: AI, Product, Fintech"',
+          )}<button type="submit" class="primary">Tìm session phù hợp</button>
+        </form>
+        <div id="ai-results"></div>
+        <p class="ai-note">
+          AI mô phỏng: so khớp từ khóa trong tiêu đề / chủ đề, loại session hết
+          chỗ, trùng agenda và thiếu 8 phút di chuyển.
+        </p>`,
+    );
+    $("#recommend-form").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const terms = ev.target.elements.interests.value.trim();
+      if (terms.length < 2) {
+        toast("Nhập tối thiểu 2 ký tự.");
+        return;
+      }
+      const b = ev.target.querySelector("button");
+      b.disabled = true;
+      $("#ai-results").innerHTML =
+        '<div class="loading">Đang tìm nội dung phù hợp…</div>';
+      await new Promise((r) => setTimeout(r, 650));
+      if (!$("#ai-results")) return;
+      const results = EventAI.recommend(
+        sessions(),
+        terms,
+        agenda(),
+        state().preferences,
+      );
+      state().aiDrafts.recommend = {
+        interests: terms,
+        sessionIds: results.map((r) => r.session.id),
+      };
+      $("#ai-results").innerHTML =
+        results
+          .map(
+            (r) =>
+              /* HTML */ `<div class="result">
+                <strong>${e(r.session.title)}</strong>
+                <p>
+                  Phù hợp ${r.score} từ khóa; còn chỗ và không trùng lịch hiện
+                  tại.
+                </p>
+                ${btn("accept-recommend", "Chấp nhận", r.session.id, "primary")}
+                ${btn("dismiss-result", "Bỏ qua")}
+              </div>`,
+          )
+          .join("") ||
+        /* HTML */ `<div class="result">
+          <strong>Chưa đủ cơ sở để gợi ý</strong>
+          <p>
+            Không có session phù hợp với từ khóa, sức chứa và lịch hiện tại. Đổi
+            từ khóa hoặc chỉnh agenda rồi thử lại.
+          </p>
+        </div>`;
+      b.disabled = false;
+    });
+  }
+  // Hàm xử lý Click riêng cho trang Khám phá
+  function handleCatalogClicks(a, id, el) {
+    if (a === "grid" || a === "list") {
+      $("#catalog").classList.toggle("list", a === "list");
+      return true; // Trả về true để báo đã xử lý xong
+    }
+    if (a === "reset-filters") {
+      for (const n of ["search", "date", "topic", "speaker", "availability"])
+        $("#" + n).value = "";
+      filterCatalog();
+      return true;
+    }
+    if (a === "recommend") {
+      recommend();
+      return true;
+    }
+    if (a === "accept-recommend") {
+      const s = sessions().find((s) => s.id === id);
+      if (!s || agenda().some((x) => EventAI.overlap(x, s))) {
+        toast("Agenda đã thay đổi. Hãy chạy lại gợi ý.");
+        return true;
+      }
+      addAgenda(id);
+      el.closest(".result").remove();
+      return true;
+    }
+    if (a === "dismiss-result") {
+      el.closest(".result").remove();
+      return true;
+    }
+    if (a === "waitlist") {
+      state().waitlist = state().waitlist.includes(id)
+        ? state().waitlist.filter((x) => x !== id)
+        : [...state().waitlist, id];
+      persist("Đã cập nhật danh sách chờ");
+      render();
+      return true;
+    }
+    if (a === "save-ai-draft") {
+      if (!state().aiDrafts[el.dataset.id]) {
+        toast("Tạo gợi ý trước khi lưu bản demo.");
+        return true;
+      }
+      persist("Đã lưu bản gợi ý demo · Chưa áp dụng thay đổi");
+      return true;
+    }
+  }
+
+  /* -------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------
+  ============================= 3. CHI TIẾT SESSION ================================
+  ----------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------*/
+
+  //render trang chi tiết của một buổi hội thảo
   function detail() {
     const s = sessions().find(
       (s) =>
@@ -368,7 +660,7 @@
         "Thông tin đầy đủ trước khi thêm vào agenda cá nhân.",
         link("attendee-session-catalog", "← Quay lại danh mục"),
       ) +
-      /* HTML */ `<div class="two-col">
+      `<div class="two-col">
         <section class="panel">
           <img
             class="detail-cover"
@@ -390,13 +682,15 @@
             <span class="avatar">${e(s.speaker.split(" ").pop()[0])}</span
             ><strong>${e(s.speaker)}</strong>
           </div>
-          ${s.speaker === state().profile.name
-            ? /* HTML */ `<p>
+          ${
+            s.speaker === state().profile.name
+              ? `<p>
                   ${e(state().profile.position)} ·
                   ${e(state().profile.organization)}
                 </p>
                 <p>${e(state().profile.bio)}</p>`
-            : ""}
+              : ""
+          }
           <hr />
           <h2>Tài liệu từ diễn giả</h2>
           ${table(
@@ -407,18 +701,20 @@
               )
               .map(
                 (m) =>
-                  /* HTML */ `<tr>
+                  `<tr>
                     <td>${e(m.name)}</td>
                     <td>v${m.version}</td>
                     <td>
-                      ${m.url && safeHttps(m.url)
-                        ? /* HTML */ `<a
+                      ${
+                        m.url && safeHttps(m.url)
+                          ? `<a
                             href="${e(m.url)}"
                             target="_blank"
                             rel="noopener"
                             >Mở liên kết ↗</a
                           >`
-                        : btn("download-material", "Tải tệp", m.id)}
+                          : btn("download-material", "Tải tệp", m.id)
+                      }
                     </td>
                   </tr>`,
               ),
@@ -436,32 +732,38 @@
               ${Math.round((s.booked / s.capacity) * 100)}% đã đặt
             </p>
             <progress
-              class="${s.booked >= s.capacity
-                ? "capacity-full"
-                : s.booked / s.capacity > 0.9
-                  ? "capacity-warn"
-                  : ""}"
+              class="${
+                s.booked >= s.capacity
+                  ? "capacity-full"
+                  : s.booked / s.capacity > 0.9
+                    ? "capacity-warn"
+                    : ""
+              }"
               value="${s.booked}"
               max="${s.capacity}"
               aria-label="Sức chứa"
             ></progress>
             <hr />
-            ${state().agenda.includes(s.id)
-              ? btn("remove-agenda", "Bỏ khỏi agenda", s.id)
-              : btn(
-                  s.booked >= s.capacity ? "waitlist" : "add-agenda",
-                  s.booked >= s.capacity
-                    ? state().waitlist.includes(s.id)
-                      ? "Hủy chờ"
-                      : "Tham gia chờ"
-                    : "Thêm vào agenda",
-                  s.id,
-                  "primary",
-                )}
+            ${
+              state().agenda.includes(s.id)
+                ? btn("remove-agenda", "Bỏ khỏi agenda", s.id)
+                : btn(
+                    s.booked >= s.capacity ? "waitlist" : "add-agenda",
+                    s.booked >= s.capacity
+                      ? state().waitlist.includes(s.id)
+                        ? "Hủy chờ"
+                        : "Tham gia chờ"
+                      : "Thêm vào agenda",
+                    s.id,
+                    "primary",
+                  )
+            }
             <p class="muted">
-              ${agenda().some((a) => a.id !== s.id && EventAI.overlap(a, s))
-                ? "⚠ Trùng lịch với session trong agenda."
-                : "✓ Không trùng với lịch hiện tại."}
+              ${
+                agenda().some((a) => a.id !== s.id && EventAI.overlap(a, s))
+                  ? "⚠ Trùng lịch với session trong agenda."
+                  : "✓ Không trùng với lịch hiện tại."
+              }
             </p>
           </section>
           <section class="panel">
@@ -472,11 +774,52 @@
         </aside>
       </div>`;
   }
+  // Hàm xử lý Click riêng cho trang Chi tiết
+  async function handleDetailClicks(a, id) {
+    if (a === "download-material") {
+      const m = state().materials.find((m) => m.id === id);
+      if (!m) return true;
+      if (role === "attendee" && !materialVisible(m)) {
+        toast("Tài liệu chưa mở cho người tham dự.");
+        return true;
+      }
+      if (m.source !== "local") {
+        toast(
+          "Tài liệu mẫu chỉ có metadata. Tải tệp của bạn ở workspace Diễn giả để kiểm tra tải xuống.",
+        );
+        return true;
+      }
+      try {
+        const file = await EP.files.get(m.id);
+        if (!file) {
+          toast("Tệp không còn trên thiết bị này. Hãy tải lại.");
+          return true;
+        }
+        const u = URL.createObjectURL(file),
+          anchor = document.createElement("a");
+        anchor.href = u;
+        anchor.download = m.name;
+        anchor.click();
+        setTimeout(() => URL.revokeObjectURL(u), 1000);
+      } catch {
+        toast("Không thể mở kho tệp trên thiết bị.");
+      }
+      return true;
+    }
+  }
+
+  /* -------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------
+  ============================= 4. AGENDA CỦA TÔI ================================
+  ----------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------*/
+
+  // Hàm render chính
   function myAgenda() {
     const items = agenda().sort((a, b) =>
       (a.date + a.start).localeCompare(b.date + b.start),
     );
-    const conflicts = EventAI.conflicts(items);
+    const conflicts = EventAI.conflicts(items); //Gọi một phương thức xử lý logic (hoặc AI trợ lý sự kiện)
     $("#content").innerHTML =
       heading(
         "Agenda của tôi",
@@ -484,7 +827,7 @@
         link("attendee-session-catalog", "+ Thêm session"),
       ) +
       (conflicts.length
-        ? /* HTML */ `<div class="banner warning">
+        ? `<div class="banner warning">
             <div>
               <strong>⚠ Phát hiện ${conflicts.length} xung đột</strong>
               <p>Hai session trùng thời gian. Xem đề xuất để điều chỉnh.</p>
@@ -492,16 +835,17 @@
             ${btn("resolve", "Giải quyết ngay", "", "primary")}
           </div>`
         : "") +
-      /* HTML */ `<div class="two-col">
+      `<div class="two-col">
         <section class="panel">
           <div class="section-line">
             <h2>Lịch của bạn · Toàn sự kiện</h2>
             ${btn("calendar-export", "Xuất lịch .ics")}
           </div>
-          ${items
-            .map(
-              (s) =>
-                /* HTML */ `<article class="timeline-item">
+          ${
+            items
+              .map(
+                (s) =>
+                  `<article class="timeline-item">
                   <time>${e(s.start)}</time>
                   <div class="body">
                     <h3>${e(s.title)}</h3>
@@ -516,29 +860,32 @@
                       "Chi tiết",
                       "link",
                       "?id=" + s.id,
-                    )}${s.status === "Hoàn thành"
-                      ? link(
-                          "attendee-session-feedback",
-                          "Phản hồi →",
-                          "link",
-                          "?id=" + s.id,
-                        )
-                      : ""}${btn(
-                      "note-session",
-                      "Sửa ghi chú",
-                      s.id,
-                    )}${s.recording
-                      ? btn("recording-session", "Đổi sang bản ghi", s.id)
-                      : ""}${btn("remove-agenda", "Gỡ session", s.id)}
+                    )}${
+                      s.status === "Hoàn thành"
+                        ? link(
+                            "attendee-session-feedback",
+                            "Phản hồi →",
+                            "link",
+                            "?id=" + s.id,
+                          )
+                        : ""
+                    }${btn("note-session", "Sửa ghi chú", s.id)}${
+                      s.recording
+                        ? btn("recording-session", "Đổi sang bản ghi", s.id)
+                        : ""
+                    }${btn("remove-agenda", "Gỡ session", s.id)}
                   </div>
-                  ${state().notes[s.id]
-                    ? /* HTML */ `<p class="session-note">
-                        ${e(state().notes[s.id])}
-                      </p>`
-                    : ""}
+                  ${
+                    state().notes[s.id]
+                      ? /* HTML */ `<p class="session-note">
+                          ${e(state().notes[s.id])}
+                        </p>`
+                      : ""
+                  }
                 </article>`,
-            )
-            .join("") || empty("Agenda của bạn đang trống")}
+              )
+              .join("") || empty("Agenda của bạn đang trống")
+          }
         </section>
         <aside class="stack">
           <section class="panel">
@@ -565,34 +912,244 @@
               )
               .join("")}
             <h2>Bản ghi đã chọn</h2>
-            ${state()
-              .recordings.map((id) => state().sessions.find((s) => s.id === id))
-              .filter(Boolean)
-              .map(
-                (s) =>
-                  /* HTML */ `<p>
-                    ${e(s.title)} · Xem sau session (mô phỏng)
-                  </p>`,
-              )
-              .join("") || '<p class="muted">Chưa chọn bản ghi.</p>'}
+            ${
+              state()
+                .recordings.map((id) =>
+                  state().sessions.find((s) => s.id === id),
+                )
+                .filter(Boolean)
+                .map(
+                  (s) =>
+                    /* HTML */ `<p>
+                      ${e(s.title)} · Xem sau session (mô phỏng)
+                    </p>`,
+                )
+                .join("") || '<p class="muted">Chưa chọn bản ghi.</p>'
+            }
             <h2>Danh sách chờ</h2>
-            ${state()
-              .waitlist.map((id) => {
-                const s = sessions().find((s) => s.id === id);
-                return s
-                  ? /* HTML */ `<p>${e(s.title)}</p>
-                      ${btn("waitlist", "Hủy chờ", id)}`
-                  : "";
-              })
-              .join("") ||
-            '<p class="muted">Bạn chưa tham gia danh sách chờ.</p>'}
+            ${
+              state()
+                .waitlist.map((id) => {
+                  const s = sessions().find((s) => s.id === id);
+                  return s
+                    ? /* HTML */ `<p>${e(s.title)}</p>
+                        ${btn("waitlist", "Hủy chờ", id)}`
+                    : "";
+                })
+                .join("") ||
+              '<p class="muted">Bạn chưa tham gia danh sách chờ.</p>'
+            }
           </section>
         </aside>
       </div>`;
   }
+  // Các hàm logic & AI
+  function resolve() {
+    const results = EventAI.resolve(agenda());
+    if (!results.removed.length) {
+      toast("Không có xung đột trong agenda hiện tại.");
+      return;
+    }
+    modal(
+      "✦ Đề xuất giải quyết xung đột",
+      /* HTML */ `<p>
+          Ưu tiên giữ phiên bắt đầu sớm hơn. Chọn cách xử lý từng session trùng
+          lịch:
+        </p>
+        <form id="resolve-form" class="stack">
+          ${results.removed
+            .map(
+              (item) =>
+                /* HTML */ `<div class="result">
+                  <strong>${e(item.title)}</strong>
+                  <p>${e(item.start)}–${e(item.end)} · ${e(item.room)}</p>
+                  <label
+                    >Phương án<select name="resolve-${item.id}">
+                      <option value="remove">Gỡ session, nhường chỗ</option>
+                      ${item.recording
+                        ? '<option value="recording">Xem bản ghi sau session</option>'
+                        : ""}
+                      <option value="keep">
+                        Giữ lịch hiện tại, chỉnh thủ công
+                      </option>
+                    </select></label
+                  >
+                </div>`,
+            )
+            .join("")}
+          <p class="ai-note">
+            Quy tắc mô phỏng theo giờ. Bạn quyết định trước khi thay đổi agenda.
+          </p>
+          <div class="form-actions">
+            ${btn("close", "Giữ lịch hiện tại")}<button
+              type="submit"
+              id="apply-resolve"
+              class="primary"
+            >
+              Áp dụng phương án
+            </button>
+          </div>
+        </form>`,
+    );
+    $("#resolve-form").addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const d = new FormData(ev.target);
+      for (const item of results.removed) {
+        const mode = d.get("resolve-" + item.id);
+        if (mode === "keep") continue;
+        item.booked = Math.max(0, item.booked - 1);
+        item.saves = Math.max(0, item.saves - 1);
+        state().agenda = state().agenda.filter((id) => id !== item.id);
+        if (mode === "recording" && !state().recordings.includes(item.id))
+          state().recordings.push(item.id);
+      }
+      $("#modal").close();
+      persist("Đã áp dụng phương án xử lý xung đột");
+      render();
+    });
+  }
+  // Hàm xử lý Click riêng cho trang Agenda
+  function handleAgendaClicks(a, id) {
+    if (a === "resolve") {
+      resolve();
+      return true;
+    }
+    if (a === "note-session") {
+      modal(
+        "Ghi chú session",
+        `<form id="note-form" class="stack">
+        <label>Ghi chú<textarea name="note" maxlength="1000">${e(state().notes[id] || "")}</textarea></label>
+        <button type="submit" class="primary">Lưu ghi chú</button>
+      </form>`,
+      );
+      $("#note-form").addEventListener("submit", (ev) => {
+        ev.preventDefault();
+        state().notes[id] = ev.target.elements.note.value.trim();
+        $("#modal").close();
+        persist("Đã lưu ghi chú");
+        render();
+      });
+      return true;
+    }
+    if (a === "recording-session") {
+      const item = state().sessions.find((x) => x.id === id);
+      if (!item?.recording) return true;
+      state().recordings.push(id);
+      removeAgenda(id);
+      toast("Đã chuyển sang bản ghi · Chỗ trực tiếp được nhường lại");
+      return true;
+    }
+    if (a === "calendar-export") {
+      const esc = (v) =>
+        String(v)
+          .replace(/\\/g, "\\\\")
+          .replace(/\n/g, "\\n")
+          .replace(/,/g, "\\,")
+          .replace(/;/g, "\\;");
+      const lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//EventPulse//Demo//VI",
+        ...agenda().flatMap((x) => [
+          "BEGIN:VEVENT",
+          "UID:" + x.id + "@eventpulse.demo",
+          "DTSTAMP:" +
+            new Date()
+              .toISOString()
+              .replace(/[-:]/g, "")
+              .replace(/\.\d+Z/, "Z"),
+          "DTSTART;TZID=Asia/Ho_Chi_Minh:" +
+            x.date.replaceAll("-", "") +
+            "T" +
+            x.start.replace(":", "") +
+            "00",
+          "DTEND;TZID=Asia/Ho_Chi_Minh:" +
+            x.date.replaceAll("-", "") +
+            "T" +
+            x.end.replace(":", "") +
+            "00",
+          "SUMMARY:" + esc(x.title),
+          "LOCATION:" + esc(x.room),
+          "DESCRIPTION:" + esc(state().notes[x.id] || ""),
+          "END:VEVENT",
+        ]),
+        "END:VCALENDAR",
+      ];
+      const u = URL.createObjectURL(
+        new Blob([lines.join("\r\n")], { type: "text/calendar;charset=utf-8" }),
+      );
+      const anchor = document.createElement("a");
+      anchor.href = u;
+      anchor.download = "eventpulse-agenda.ics";
+      anchor.click();
+      setTimeout(() => URL.revokeObjectURL(u), 1000);
+      return true;
+    }
+  }
+
+  /* -------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------
+  ============================= 5. PHẢN HỒI SESSION ================================
+  ----------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------*/
+
+  // Hàm render chính
+  function saveFeedback(status) {
+    const form = $("#feedback-form");
+    if (
+      status === "Đã gửi" &&
+      (!form.reportValidity() || form.elements.comment.value.trim().length < 20)
+    ) {
+      toast("Nhận xét cần ít nhất 20 ký tự có nội dung.");
+      return;
+    }
+    const d = new FormData(form);
+    const sessionId = parseInt(d.get("sessionId"));
+    if (
+      !sessions().some(
+        (s) =>
+          s.id === sessionId &&
+          s.status === "Hoàn thành" &&
+          state().agenda.includes(s.id),
+      )
+    )
+      return toast(
+        "Chỉ gửi phản hồi cho session đã hoàn thành và có trong agenda.",
+      );
+    const previous = state().feedback.find(
+      (f) => f.id === "personal-" + sessionId,
+    );
+    if (previous?.status === "Đã gửi") {
+      const old = state().sessions.find((s) => s.id === previous.sessionId);
+      if (old) old.feedbackCount = Math.max(0, old.feedbackCount - 1);
+    }
+    state().feedback = state().feedback.filter(
+      (f) => f.id !== "personal-" + sessionId,
+    );
+    state().feedback.push({
+      id: "personal-" + sessionId,
+      sessionId,
+      rating: parseInt(d.get("rating")),
+      contentRating: Number(d.get("contentRating")),
+      speakerRating: Number(d.get("speakerRating")),
+      organizationRating: Number(d.get("organizationRating")),
+      recommend: d.get("recommend"),
+      comment: d.get("comment").trim(),
+      status,
+    });
+    if (status === "Đã gửi")
+      state().sessions.find((s) => s.id === sessionId).feedbackCount++;
+    persist(
+      status === "Đã gửi" ? "Gửi phản hồi thành công · FB-2048" : "Đã lưu nháp",
+    );
+    render();
+  }
+  // Các hàm logic form
   function feedback() {
+    //Lấy ID buổi đánh giá từ URL
     const feedbackSession =
       Number(new URLSearchParams(location.search).get("id")) || 1;
+    //Tìm kiếm bản nháp đánh giá
     const draft =
       state().feedback.find((f) => f.id === "personal-" + feedbackSession) ||
       {};
@@ -601,7 +1158,7 @@
         "Phản hồi session",
         "Phản hồi được tổng hợp ẩn danh để cải thiện trải nghiệm.",
       ) +
-      /* HTML */ `<div class="two-col">
+      `<div class="two-col">
         <section class="panel">
           <form id="feedback-form" class="stack">
             ${select(
@@ -697,56 +1254,44 @@ ${e(draft.comment || "")}</textarea
       saveFeedback("Đã gửi");
     });
   }
-  function saveFeedback(status) {
-    const form = $("#feedback-form");
-    if (
-      status === "Đã gửi" &&
-      (!form.reportValidity() || form.elements.comment.value.trim().length < 20)
-    ) {
-      toast("Nhận xét cần ít nhất 20 ký tự có nội dung.");
-      return;
+  // Hàm xử lý Click riêng cho trang Phản hồi
+  function handleFeedbackClicks(a) {
+    if (a === "draft-feedback") {
+      saveFeedback("Nháp");
+      return true;
     }
-    const d = new FormData(form);
-    const sessionId = parseInt(d.get("sessionId"));
-    if (
-      !sessions().some(
-        (s) =>
-          s.id === sessionId &&
-          s.status === "Hoàn thành" &&
-          state().agenda.includes(s.id),
-      )
-    )
-      return toast(
-        "Chỉ gửi phản hồi cho session đã hoàn thành và có trong agenda.",
+    if (a === "delete-feedback") {
+      confirmAction(
+        "Xóa phản hồi",
+        "Bạn muốn xóa phản hồi và bản nháp?",
+        () => {
+          const sessionId = parseInt(
+            $("#feedback-form").elements.sessionId.value,
+          );
+          const f = state().feedback.find(
+            (f) => f.id === "personal-" + sessionId,
+          );
+          if (f?.status === "Đã gửi") {
+            const s = state().sessions.find((s) => s.id === f.sessionId);
+            if (s) s.feedbackCount = Math.max(0, s.feedbackCount - 1);
+          }
+          state().feedback = state().feedback.filter(
+            (f) => f.id !== "personal-" + sessionId,
+          );
+          persist("Đã xóa phản hồi");
+          render();
+        },
       );
-    const previous = state().feedback.find(
-      (f) => f.id === "personal-" + sessionId,
-    );
-    if (previous?.status === "Đã gửi") {
-      const old = state().sessions.find((s) => s.id === previous.sessionId);
-      if (old) old.feedbackCount = Math.max(0, old.feedbackCount - 1);
+      return true;
     }
-    state().feedback = state().feedback.filter(
-      (f) => f.id !== "personal-" + sessionId,
-    );
-    state().feedback.push({
-      id: "personal-" + sessionId,
-      sessionId,
-      rating: parseInt(d.get("rating")),
-      contentRating: Number(d.get("contentRating")),
-      speakerRating: Number(d.get("speakerRating")),
-      organizationRating: Number(d.get("organizationRating")),
-      recommend: d.get("recommend"),
-      comment: d.get("comment").trim(),
-      status,
-    });
-    if (status === "Đã gửi")
-      state().sessions.find((s) => s.id === sessionId).feedbackCount++;
-    persist(
-      status === "Đã gửi" ? "Gửi phản hồi thành công · FB-2048" : "Đã lưu nháp",
-    );
-    render();
   }
+
+  /* -------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------
+  ============================= 6. CÁC VAI TRÒ KHÁC ================================
+  ----------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------*/
+
   function profile() {
     const p = state().profile;
     $("#content").innerHTML =
@@ -754,7 +1299,7 @@ ${e(draft.comment || "")}</textarea
         "Hồ sơ diễn giả",
         "Thông tin hiển thị cho người tham dự tại sự kiện.",
       ) +
-      /* HTML */ `<div class="two-col">
+      `<div class="two-col">
         <section class="panel">
           <h2>Thông tin cơ bản</h2>
           <form id="profile-form" class="form-grid">
@@ -817,22 +1362,26 @@ ${e(p.bio)}</textarea
           <p class="muted">${e(p.bio)}</p>
           <span class="tag">${e(p.expertise)}</span>
           <p>
-            ${p.linkedin && safeHttps(p.linkedin)
-              ? /* HTML */ `<a
+            ${
+              p.linkedin && safeHttps(p.linkedin)
+                ? `<a
                   href="${e(p.linkedin)}"
                   target="_blank"
                   rel="noopener"
                   >LinkedIn ↗</a
                 >`
-              : ""}
-            ${p.website && safeHttps(p.website)
-              ? /* HTML */ `<a
+                : ""
+            }
+            ${
+              p.website && safeHttps(p.website)
+                ? `<a
                   href="${e(p.website)}"
                   target="_blank"
                   rel="noopener"
                   >Website ↗</a
                 >`
-              : ""}
+                : ""
+            }
           </p>
         </aside>
       </div>`;
@@ -894,11 +1443,11 @@ ${e(p.bio)}</textarea
       (s) => s.speaker === state().profile.name && s.status !== "Đã hủy",
     );
   function stats(rows) {
-    return /* HTML */ `<div class="stats">
+    return `<div class="stats">
       ${rows
         .map(
           ([title, value]) =>
-            /* HTML */ `<div class="stat">
+            `<div class="stat">
               <small>${title}</small><strong>${value}</strong
               ><small>${e(state().settings.event)}</small>
             </div>`,
@@ -932,7 +1481,7 @@ ${e(p.bio)}</textarea
     const [title, desc, headers] = configs[kind];
     $("#content").innerHTML =
       heading(title, desc, btn("create-" + kind, "+ Thêm mới", "", "primary")) +
-      /* HTML */ `<div class="panel">
+      `<div class="panel">
         <div class="toolbar">
           <label class="search"
             >Tìm kiếm<input
@@ -975,14 +1524,15 @@ ${e(p.bio)}</textarea
               money(x.price),
               x.quantity + " vé<br>" + badge(x.status),
             ];
-          return /* HTML */ `<tr>
-            ${cells.map((c) => /* HTML */ `<td>${c}</td>`).join("")}
+          return `<tr>
+            ${cells.map((c) => `<td>${c}</td>`).join("")}
             <td>
               <div class="actions">
-                ${btn("edit-" + kind, "Sửa", x.id)}${kind === "sessions" &&
-                x.status === "Chờ duyệt"
-                  ? btn("approve-session", "Duyệt", x.id)
-                  : ""}${btn(
+                ${btn("edit-" + kind, "Sửa", x.id)}${
+                  kind === "sessions" && x.status === "Chờ duyệt"
+                    ? btn("approve-session", "Duyệt", x.id)
+                    : ""
+                }${btn(
                   kind === "users" ? "lock-user" : "delete-" + kind,
                   kind === "sessions"
                     ? "Lưu trữ"
@@ -1104,518 +1654,6 @@ ${e(p.bio)}</textarea
       b.disabled = false;
     });
   }
-  const views = {
-    "attendee-session-catalog": catalog,
-    "attendee-session-detail": detail,
-    "attendee-my-agenda": myAgenda,
-    "attendee-session-feedback": feedback,
-  };
-  function render() {
-    if (route === "home") return home();
-    (
-      views[route] ||
-      (() =>
-        ($("#content").innerHTML = heading(
-          "Không tìm thấy trang",
-          "Hãy quay lại danh mục session.",
-          link(
-            role + "-" + groups[role][1][0][0],
-            "Trang chủ",
-          ),
-        )))
-    )();
-    if (route === "speaker-profile") loadProfileAvatar();
-  }
-  function addAgenda(id) {
-    const s = sessions().find((s) => s.id === id);
-    if (!s) return;
-    if (state().agenda.includes(id)) return;
-    if (s.booked >= s.capacity) {
-      toast("Session đã đầy. Vui lòng tham gia danh sách chờ.");
-      return;
-    }
-    state().agenda.push(id);
-    s.booked++;
-    s.saves++;
-    persist(
-      EventAI.conflicts(agenda()).length
-        ? "Đã thêm lịch · Có xung đột, kiểm tra Agenda."
-        : "Đã thêm vào agenda",
-    );
-    render();
-  }
-  function removeAgenda(id) {
-    const s = state().sessions.find((s) => s.id === id);
-    if (state().agenda.includes(id) && s) {
-      s.booked = Math.max(0, s.booked - 1);
-      s.saves = Math.max(0, s.saves - 1);
-    }
-    state().agenda = state().agenda.filter((x) => x !== id);
-    persist("Đã bỏ khỏi agenda");
-    render();
-  }
-  function confirmAction(title, text, callback) {
-    modal(
-      title,
-      /* HTML */ `<p>${e(text)}</p>
-        <div class="form-actions">
-          ${btn("close", "Quay lại")}<button
-            type="button"
-            id="confirm"
-            class="danger"
-          >
-            Xác nhận
-          </button>
-        </div>`,
-    );
-    $("#confirm").addEventListener("click", () => {
-      $("#modal").close();
-      callback();
-    });
-  }
-  function editEntity(kind, id, speakerOnly = false) {
-    const item = state()[kind].find((x) => x.id === id) || {},
-      isNew = !item.id;
-    let fields = "";
-    if (kind === "sessions")
-      fields =
-        field(
-          "title",
-          "Tên session *",
-          item.title,
-          "text",
-          'required maxlength="200"',
-        ) +
-        select(
-          "topic",
-          "Chủ đề",
-          ["AI & Data", "Product", "Fintech"],
-          item.topic,
-        ) +
-        field(
-          "speaker",
-          "Diễn giả *",
-          item.speaker || state().profile.name,
-          "text",
-          'required maxlength="100"',
-        ) +
-        field(
-          "date",
-          "Ngày *",
-          item.date || "2026-10-19",
-          "date",
-          'required min="${state().settings.start.slice(0,10)}" max="${state().settings.end.slice(0,10)}"',
-        ) +
-        field("start", "Bắt đầu *", item.start || "09:00", "time", "required") +
-        field("end", "Kết thúc *", item.end || "10:00", "time", "required") +
-        select(
-          "room",
-          "Phòng",
-          state()
-            .rooms.filter((r) => r.status !== "Đã lưu trữ")
-            .map((r) => r.name),
-          item.room,
-        ) +
-        select(
-          "status",
-          "Trạng thái",
-          [
-            "Chờ duyệt",
-            "Đã duyệt",
-            "Hoàn thành",
-            "Bị từ chối",
-            "Đã hủy",
-            "Bản nháp",
-            "Đã lưu trữ",
-          ],
-          item.status || "Chờ duyệt",
-        ) +
-        /* HTML */ `<label class="full"
-          >Mô tả<textarea name="description" maxlength="3000">
-${e(item.description || "")}</textarea
-          >
-        </label>`;
-    if (speakerOnly)
-      fields =
-        field(
-          "title",
-          "Tên session *",
-          item.title,
-          "text",
-          'required maxlength="200"',
-        ) +
-        /* HTML */ `<label class="full"
-          >Nội dung *<textarea name="description" required maxlength="3000">
-${e(item.description)}</textarea
-          >
-        </label>`;
-    if (kind === "rooms")
-      fields =
-        field(
-          "equipment",
-          "Thiết bị",
-          item.equipment || "Máy chiếu · Mic · Ghi hình",
-        ) +
-        field(
-          "name",
-          "Tên phòng *",
-          item.name,
-          "text",
-          'required maxlength="100"',
-        ) +
-        field(
-          "capacity",
-          "Sức chứa *",
-          item.capacity || 120,
-          "number",
-          'required min="1" max="10000" step="1"',
-        ) +
-        field(
-          "location",
-          "Vị trí *",
-          item.location,
-          "text",
-          'required maxlength="200"',
-        );
-    if (kind === "users")
-      fields =
-        field(
-          "name",
-          "Họ tên *",
-          item.name,
-          "text",
-          'required maxlength="100"',
-        ) +
-        field("email", "Email *", item.email, "email", "required") +
-        select(
-          "role",
-          "Vai trò",
-          Object.values(groups).map((g) => g[0]),
-          item.role,
-        ) +
-        select(
-          "status",
-          "Trạng thái",
-          ["Hoạt động", "Chờ xác thực", "Đã khóa"],
-          item.status,
-        );
-    if (kind === "tickets")
-      fields =
-        field(
-          "start",
-          "Bắt đầu bán *",
-          item.start || "2026-09-01T00:00",
-          "datetime-local",
-          "required",
-        ) +
-        field(
-          "end",
-          "Kết thúc bán *",
-          item.end || "2026-10-17T23:59",
-          "datetime-local",
-          "required",
-        ) +
-        field(
-          "name",
-          "Tên loại vé *",
-          item.name,
-          "text",
-          'required maxlength="100"',
-        ) +
-        field(
-          "price",
-          "Giá vé (VNĐ) *",
-          item.price ?? 299000,
-          "number",
-          'required min="0" max="100000000" step="1000"',
-        ) +
-        field(
-          "quantity",
-          "Số lượng *",
-          item.quantity ?? 100,
-          "number",
-          'required min="0" max="100000" step="1"',
-        ) +
-        select(
-          "status",
-          "Trạng thái",
-          ["Đang bán", "Tạm dừng", "Đã hết"],
-          item.status,
-        );
-    modal(
-      (isNew ? "Thêm mới" : "Chỉnh sửa") +
-        " · " +
-        {
-          sessions: "Session",
-          rooms: "Phòng",
-          users: "Người dùng",
-          tickets: "Loại vé",
-        }[kind],
-      /* HTML */ `<form id="entity-form" class="form-grid">
-        ${fields}
-        <p id="form-error" class="error full" role="alert"></p>
-        <div class="form-actions full">
-          ${btn("close", "Hủy")}<button type="submit" class="primary">
-            Lưu thay đổi
-          </button>
-        </div>
-      </form>`,
-    );
-    $("#entity-form").addEventListener("submit", (ev) => {
-      ev.preventDefault();
-      const d = Object.fromEntries(new FormData(ev.target));
-      for (const k in d) d[k] = d[k].trim();
-      const error = (msg) => {
-        $("#form-error").textContent = msg;
-      };
-      if (Object.entries(d).some(([k, v]) => !v && k !== "description"))
-        return error("Vui lòng nhập đầy đủ nội dung.");
-      for (const k of ["capacity", "price", "quantity"])
-        if (k in d) d[k] = Number(d[k]);
-      if (
-        kind === "tickets" &&
-        (d.quantity < (item.sold || 0) || d.end <= d.start)
-      )
-        return error(
-          "Quota phải ≥ số vé đã bán; kết thúc bán phải sau bắt đầu.",
-        );
-      if (
-        kind === "rooms" &&
-        state().rooms.some(
-          (r) => r.id !== id && r.name.toLowerCase() === d.name.toLowerCase(),
-        )
-      )
-        return error("Tên phòng đã tồn tại.");
-      if (
-        kind === "rooms" &&
-        sessions().some((s) => s.room === item.name && s.booked > d.capacity)
-      )
-        return error("Sức chứa mới nhỏ hơn số người đã đặt.");
-      if (
-        kind === "users" &&
-        state().users.some(
-          (u) => u.id !== id && u.email.toLowerCase() === d.email.toLowerCase(),
-        )
-      )
-        return error("Email đã tồn tại.");
-      if (kind === "sessions" && !speakerOnly) {
-        if (d.start >= d.end)
-          return error("Giờ kết thúc phải sau giờ bắt đầu.");
-        const room = state().rooms.find((r) => r.name === d.room);
-        if (!room) return error("Hãy tạo phòng trước khi tạo session.");
-        if (
-          d.date < state().settings.start.slice(0, 10) ||
-          d.date > state().settings.end.slice(0, 10)
-        )
-          return error("Ngày session phải thuộc khoảng ngày sự kiện.");
-        if (d.description.trim().length < 80)
-          return error("Mô tả session cần ít nhất 80 ký tự.");
-        if ((item.booked || 0) > room.capacity)
-          return error("Phòng không đủ chỗ cho người đã đặt.");
-        if (
-          ["Đã duyệt", "Hoàn thành"].includes(d.status) &&
-          sessions().some(
-            (s) =>
-              s.id !== id &&
-              EventAI.overlap(s, d) &&
-              (s.room === d.room || s.speaker === d.speaker),
-          )
-        )
-          return error(
-            "Trùng thời gian phòng hoặc diễn giả. Hãy chọn khung giờ khác.",
-          );
-        d.public = ["Đã duyệt", "Hoàn thành"].includes(d.status);
-        d.capacity = room.capacity;
-        d.image =
-          d.topic === "Product"
-            ? "product"
-            : d.topic === "Fintech"
-              ? "fintech"
-              : "ai";
-      }
-      if (isNew)
-        state()[kind].push({
-          id: Date.now(),
-          ...(kind === "sessions"
-            ? { booked: 0, saves: 0, feedbackCount: 0 }
-            : {}),
-          ...d,
-        });
-      else {
-        const oldName = item.name,
-          oldRoom = item.room;
-        Object.assign(item, d);
-        if (kind === "sessions" && oldRoom !== d.room && item.public) {
-          state().alerts.unshift({
-            id: Date.now() + 1,
-            title: "Thay đổi phòng · " + item.title,
-            message: `Session ${item.title} chuyển từ ${oldRoom || "chưa gán"} sang ${item.room}, lúc ${item.start}. Agenda dùng lịch mới.`,
-            priority: "Quan trọng",
-            status: "Nháp",
-            sessionId: id,
-            channels: "Push + Email",
-            recipients: item.booked,
-          });
-        }
-        if (kind === "rooms")
-          state()
-            .sessions.filter((s) => s.room === oldName)
-            .forEach((s) => {
-              s.room = d.name;
-              s.capacity = d.capacity;
-            });
-        if (
-          kind === "sessions" &&
-          ["Đã hủy", "Đã lưu trữ"].includes(d.status)
-        ) {
-          state().agenda = state().agenda.filter((x) => x !== id);
-          state().waitlist = state().waitlist.filter((x) => x !== id);
-        }
-      }
-      $("#modal").close();
-      persist(
-        "Đã lưu " +
-          {
-            sessions: "session",
-            rooms: "phòng",
-            users: "người dùng",
-            tickets: "loại vé",
-          }[kind],
-      );
-      render();
-    });
-  }
-  function recommend() {
-    modal(
-      "✧ Agenda Recommender",
-      /* HTML */ `<form id="recommend-form" class="stack">
-          ${field(
-            "interests",
-            "Chủ đề hoặc mục tiêu *",
-            state().preferences.interests,
-            "text",
-            'required minlength="2" maxlength="200" placeholder="Ví dụ: AI, Product, Fintech"',
-          )}<button type="submit" class="primary">Tìm session phù hợp</button>
-        </form>
-        <div id="ai-results"></div>
-        <p class="ai-note">
-          AI mô phỏng: so khớp từ khóa trong tiêu đề / chủ đề, loại session hết
-          chỗ, trùng agenda và thiếu 8 phút di chuyển.
-        </p>`,
-    );
-    $("#recommend-form").addEventListener("submit", async (ev) => {
-      ev.preventDefault();
-      const terms = ev.target.elements.interests.value.trim();
-      if (terms.length < 2) {
-        toast("Nhập tối thiểu 2 ký tự.");
-        return;
-      }
-      const b = ev.target.querySelector("button");
-      b.disabled = true;
-      $("#ai-results").innerHTML =
-        '<div class="loading">Đang tìm nội dung phù hợp…</div>';
-      await new Promise((r) => setTimeout(r, 650));
-      if (!$("#ai-results")) return;
-      const results = EventAI.recommend(
-        sessions(),
-        terms,
-        agenda(),
-        state().preferences,
-      );
-      state().aiDrafts.recommend = {
-        interests: terms,
-        sessionIds: results.map((r) => r.session.id),
-      };
-      $("#ai-results").innerHTML =
-        results
-          .map(
-            (r) =>
-              /* HTML */ `<div class="result">
-                <strong>${e(r.session.title)}</strong>
-                <p>
-                  Phù hợp ${r.score} từ khóa; còn chỗ và không trùng lịch hiện
-                  tại.
-                </p>
-                ${btn("accept-recommend", "Chấp nhận", r.session.id, "primary")}
-                ${btn("dismiss-result", "Bỏ qua")}
-              </div>`,
-          )
-          .join("") ||
-        /* HTML */ `<div class="result">
-          <strong>Chưa đủ cơ sở để gợi ý</strong>
-          <p>
-            Không có session phù hợp với từ khóa, sức chứa và lịch hiện tại. Đổi
-            từ khóa hoặc chỉnh agenda rồi thử lại.
-          </p>
-        </div>`;
-      b.disabled = false;
-    });
-  }
-  function resolve() {
-    const results = EventAI.resolve(agenda());
-    if (!results.removed.length) {
-      toast("Không có xung đột trong agenda hiện tại.");
-      return;
-    }
-    modal(
-      "✦ Đề xuất giải quyết xung đột",
-      /* HTML */ `<p>
-          Ưu tiên giữ phiên bắt đầu sớm hơn. Chọn cách xử lý từng session trùng
-          lịch:
-        </p>
-        <form id="resolve-form" class="stack">
-          ${results.removed
-            .map(
-              (item) =>
-                /* HTML */ `<div class="result">
-                  <strong>${e(item.title)}</strong>
-                  <p>${e(item.start)}–${e(item.end)} · ${e(item.room)}</p>
-                  <label
-                    >Phương án<select name="resolve-${item.id}">
-                      <option value="remove">Gỡ session, nhường chỗ</option>
-                      ${item.recording
-                        ? '<option value="recording">Xem bản ghi sau session</option>'
-                        : ""}
-                      <option value="keep">
-                        Giữ lịch hiện tại, chỉnh thủ công
-                      </option>
-                    </select></label
-                  >
-                </div>`,
-            )
-            .join("")}
-          <p class="ai-note">
-            Quy tắc mô phỏng theo giờ. Bạn quyết định trước khi thay đổi agenda.
-          </p>
-          <div class="form-actions">
-            ${btn("close", "Giữ lịch hiện tại")}<button
-              type="submit"
-              id="apply-resolve"
-              class="primary"
-            >
-              Áp dụng phương án
-            </button>
-          </div>
-        </form>`,
-    );
-    $("#resolve-form").addEventListener("submit", (ev) => {
-      ev.preventDefault();
-      const d = new FormData(ev.target);
-      for (const item of results.removed) {
-        const mode = d.get("resolve-" + item.id);
-        if (mode === "keep") continue;
-        item.booked = Math.max(0, item.booked - 1);
-        item.saves = Math.max(0, item.saves - 1);
-        state().agenda = state().agenda.filter((id) => id !== item.id);
-        if (mode === "recording" && !state().recordings.includes(item.id))
-          state().recordings.push(item.id);
-      }
-      $("#modal").close();
-      persist("Đã áp dụng phương án xử lý xung đột");
-      render();
-    });
-  }
-
   function forecastRoom(id) {
     const s = sessions().find((s) => s.id === id);
     const prediction = EventAI.forecast([s])[0];
@@ -1804,7 +1842,7 @@ ${e(item.description)}</textarea
               .slice(0, 3)
               .map(
                 (s) =>
-                  /* HTML */ `<article class="panel">
+                  `<article class="panel">
                     <img
                       class="speaker-photo"
                       src="assets/images/${s.image}-session.jpg"
@@ -1812,11 +1850,13 @@ ${e(item.description)}</textarea
                     />
                     <h3>${e(s.speaker)}</h3>
                     <p>
-                      ${s.id === 1
-                        ? e(state().profile.position)
-                        : s.topic === "Product"
-                          ? "Product Design Lead"
-                          : "Chuyên gia công nghệ tài chính"}
+                      ${
+                        s.id === 1
+                          ? e(state().profile.position)
+                          : s.topic === "Product"
+                            ? "Product Design Lead"
+                            : "Chuyên gia công nghệ tài chính"
+                      }
                     </p>
                     <span class="tag">${e(s.topic)}</span>
                     <p>
@@ -1889,7 +1929,7 @@ ${e(item.description)}</textarea
             ]
               .map(
                 ([t, d, r]) =>
-                  /* HTML */ `<article>
+                  `<article>
                     <span>✦</span>
                     <h3>${t}</h3>
                     <p>${d}</p>
@@ -1911,7 +1951,7 @@ ${e(item.description)}</textarea
             ${Object.entries(groups)
               .map(
                 ([k, [t, list]]) =>
-                  /* HTML */ `<article class="panel">
+                  `<article class="panel">
                     <span class="workspace-icon">${list[0][2]}</span>
                     <h3>${t}</h3>
                     <p>${list.map((x) => x[1]).join(" → ")}</p>
@@ -1971,7 +2011,7 @@ ${e(item.description)}</textarea
               ]
                 .map(
                   ([q, a]) =>
-                    /* HTML */ `<details>
+                    `<details>
                       <summary>${q}</summary>
                       <p>${a}</p>
                     </details>`,
@@ -2030,7 +2070,7 @@ ${e(item.description)}</textarea
       ["Giờ", "Session", "Diễn giả", "Địa điểm", "Khám phá"],
       rows.map(
         (s) =>
-          /* HTML */ `<tr>
+          `<tr>
             <td>${e(s.start)}–${e(s.end)}</td>
             <td>${e(s.title)}</td>
             <td>${e(s.speaker)}</td>
@@ -2056,7 +2096,7 @@ ${e(item.description)}</textarea
         ${ownSessions()
           .map(
             (s) =>
-              /* HTML */ `<option
+              `<option
                 value="${s.id}"
                 ${s.id === selectedSession() ? "selected" : ""}
               >
@@ -2074,144 +2114,6 @@ ${e(item.description)}</textarea
   function pickSession() {
     $("#session-picker")?.addEventListener("change", (ev) => {
       location.href = url(route, "?id=" + ev.target.value);
-    });
-  }
-  function aiPanel(title, body) {
-    return /* HTML */ `<section class="panel ai-panel">
-      <h2>✦ ${title}</h2>
-      <p class="muted">AI hỗ trợ quyết định, không thay thế bạn.</p>
-      <div class="ai-steps">
-        <span>Đầu vào</span><span>Xử lý</span><span>Kết quả</span>
-      </div>
-      ${body}
-      <p class="ai-note">
-        AI mô phỏng bằng quy tắc JavaScript. Không tự động thay đổi dữ liệu. Chỉ
-        lưu sau khi bạn xác nhận.
-      </p>
-    </section>`;
-  }
-  function catalog() {
-    const pref = state().preferences;
-    $("#content").innerHTML =
-      heading(
-        "Khám phá session",
-        "Khám phá chương trình và thiết kế hành trình theo sở thích của bạn.",
-        link("attendee-my-agenda", "Agenda của tôi →", "primary"),
-      ) +
-      /* HTML */ `<div class="banner">
-          <div>
-            <strong>Chương trình cùng dữ liệu với Ban tổ chức</strong>
-            <p>
-              ${sessions().length} session công khai trong demo ·
-              ${state().sessions.length} session toàn sự kiện.
-            </p>
-          </div>
-        </div>
-        <div class="panel toolbar">
-          <label class="search"
-            >Tìm kiếm<input
-              id="search"
-              placeholder="Tìm tên session hoặc diễn giả…"
-              type="search" /></label
-          ><label
-            >Ngày<select id="date">
-              <option value="">Toàn sự kiện</option>
-              ${["2026-10-18", "2026-10-19", "2026-10-20"]
-                .map(
-                  (d) =>
-                    /* HTML */ `<option value="${d}">
-                      ${shortDate(d)}/2026
-                    </option>`,
-                )
-                .join("")}
-            </select></label
-          ><label
-            >Chủ đề<select id="topic">
-              <option value="">Tất cả chủ đề</option>
-              ${[...new Set(sessions().map((s) => s.topic))]
-                .map((t) => /* HTML */ `<option>${e(t)}</option>`)
-                .join("")}
-            </select></label
-          ><label
-            >Diễn giả<select id="speaker">
-              <option value="">Tất cả diễn giả</option>
-              ${[...new Set(sessions().map((s) => s.speaker))]
-                .map((t) => /* HTML */ `<option>${e(t)}</option>`)
-                .join("")}
-            </select></label
-          ><label
-            >Sức chứa<select id="availability">
-              <option value="">Tất cả</option>
-              <option value="available">Còn chỗ</option>
-              <option value="full">Đã đầy</option>
-            </select></label
-          >
-        </div>
-        <div class="section-line">
-          <strong id="count"></strong>
-          <div>
-            ${btn("grid", "Lưới")}${btn("list", "Danh sách")}${btn(
-              "reset-filters",
-              "Đặt lại bộ lọc",
-            )}
-          </div>
-        </div>
-        <div id="catalog" class="cards"></div>
-        <div class="two-col preferences-layout">
-          <section class="panel">
-            <h2>Sở thích của bạn</h2>
-            <form id="preferences-form" class="stack">
-              ${field(
-                "interests",
-                "Chủ đề quan tâm",
-                pref.interests,
-                "text",
-                "required",
-              )}${field("goal", "Mục tiêu", pref.goal)}${field(
-                "date",
-                "Ngày tham dự",
-                pref.date,
-                "date",
-              )}${field("start", "Bắt đầu", pref.start, "time")}${field(
-                "end",
-                "Kết thúc",
-                pref.end,
-                "time",
-              )}${select(
-                "level",
-                "Mức độ",
-                ["Cơ bản", "Trung cấp", "Chuyên sâu"],
-                pref.level,
-              )}<button class="primary" type="submit">Lưu sở thích</button
-              >${btn("recommend", "Tạo gợi ý AI", "", "primary")}
-            </form>
-            <p class="ai-note">Chỉ dùng sở thích và lịch bạn đã lưu.</p>
-          </section>
-          ${aiPanel(
-            "Agenda Recommender",
-            /* HTML */ `<div class="result">
-                <strong>Có giải thích · Bạn quyết định</strong>
-                <p>
-                  Chọn chủ đề, thời gian và mục tiêu. Gợi ý kiểm tra lịch, sức
-                  chứa và thời gian di chuyển 8 phút trước khi đề xuất.
-                </p>
-                ${btn("recommend", "Xem gợi ý", "", "primary")}
-              </div>
-              ${btn("save-ai-draft", "Lưu bản gợi ý demo", "recommend")}
-              <p>Bản gợi ý đã lưu chưa giữ chỗ.</p>`,
-          )}
-        </div>`;
-    for (const id of ["search", "date", "topic", "speaker", "availability"])
-      $("#" + id).addEventListener("input", filterCatalog);
-    const speaker = new URLSearchParams(location.search).get("speaker");
-    if (speaker) $("#speaker").value = speaker;
-    filterCatalog();
-    $("#preferences-form").addEventListener("submit", (ev) => {
-      ev.preventDefault();
-      const d = Object.fromEntries(new FormData(ev.target));
-      if (d.start >= d.end) return toast("Giờ kết thúc phải sau bắt đầu.");
-      state().preferences = d;
-      persist("Đã lưu sở thích");
     });
   }
   function materials() {
@@ -3215,22 +3117,24 @@ ${e(s.takeaways || "")}</textarea
       if (a) {
         el.insertAdjacentHTML(
           "beforeend",
-          /* HTML */ `<p>
+          `<p>
               <small
                 >${e(a.channels || "Push")} · ${a.recipients || "Toàn sự kiện"}
                 người nhận
-                ${a.scheduledAt
-                  ? "· " + e(a.scheduledAt.replace("T", " "))
-                  : ""}</small
+                ${
+                  a.scheduledAt ? "· " + e(a.scheduledAt.replace("T", " ")) : ""
+                }</small
               >
             </p>
-            ${a.status === "Đã lên lịch"
-              ? btn("cancel-alert", "Hủy lịch", a.id)
-              : ""}${a.status === "Nháp"
-              ? btn("edit-alert", "Sửa nháp", a.id)
-              : ""}${a.status === "Đã gửi"
-              ? btn("alert-results", "Xem kết quả", a.id)
-              : ""}`,
+            ${
+              a.status === "Đã lên lịch"
+                ? btn("cancel-alert", "Hủy lịch", a.id)
+                : ""
+            }${a.status === "Nháp" ? btn("edit-alert", "Sửa nháp", a.id) : ""}${
+              a.status === "Đã gửi"
+                ? btn("alert-results", "Xem kết quả", a.id)
+                : ""
+            }`,
         );
       }
     });
@@ -3344,7 +3248,6 @@ ${e(item.message || "")}</textarea
       save();
     });
   }
-
   function userManagement() {
     management("users");
     $(".page-heading").insertAdjacentHTML(
@@ -3414,426 +3317,6 @@ ${e(item.message || "")}</textarea
       .forEach((el) => el.addEventListener("change", update));
     update();
   }
-  document.addEventListener("click", async (ev) => {
-    const el = ev.target.closest("[data-action]");
-    if (!el) return;
-    const a = el.dataset.action,
-      id = Number(el.dataset.id),
-      s = state();
-    if (a === "program-day") programDay(el.dataset.date);
-    if (a === "checkin-help")
-      modal(
-        "Hướng dẫn check-in",
-        "<p>Chuẩn bị vé QR và giấy tờ xác nhận. Đến sảnh chính từ 08:00; có lối tiếp cận và thang máy.</p>",
-      );
-    if (a === "privacy")
-      modal(
-        "Quyền riêng tư",
-        "<p>Dữ liệu của bản demo chỉ được giữ trong trình duyệt. Phản hồi hiển thị ẩn danh; AI không dùng email và số điện thoại.</p>",
-      );
-    if (a === "speaker-new" || a === "speaker-content") speakerContent(id);
-    if (a === "withdraw-session" || a === "restore-session") {
-      const item = ownSessions().find((x) => x.id === id);
-      if (item) {
-        item.status = "Bản nháp";
-        item.public = false;
-        persist("Đã chuyển session về bản nháp");
-        render();
-      }
-    }
-    if (a === "archive-room" || a === "restore-room") {
-      const room = s.rooms.find((r) => r.id === id);
-      if (a === "archive-room" && sessions().some((x) => x.room === room.name))
-        return toast(
-          "Phòng còn session công khai. Chuyển các session sang phòng khác trước khi lưu trữ.",
-        );
-      confirmAction(
-        a === "archive-room" ? "Lưu trữ phòng" : "Khôi phục phòng",
-        "Cấu hình và lịch sử phòng được giữ lại.",
-        () => {
-          room.status = a === "archive-room" ? "Đã lưu trữ" : "Hoạt động";
-          persist("Đã cập nhật trạng thái phòng");
-          render();
-        },
-      );
-    }
-    if (a === "room-schedule") {
-      const room = s.rooms.find((r) => r.id === id);
-      modal(
-        "Lịch sử dụng · " + e(room.name),
-        table(
-          ["Ngày", "Giờ", "Session"],
-          sessions()
-            .filter((x) => x.room === room.name)
-            .map(
-              (x) =>
-                /* HTML */ `<tr>
-                  <td>${shortDate(x.date)}</td>
-                  <td>${e(x.start)}–${e(x.end)}</td>
-                  <td>${e(x.title)}</td>
-                </tr>`,
-            ),
-        ),
-      );
-    }
-    if (
-      ["publish-material", "archive-material", "restore-material"].includes(a)
-    ) {
-      const m = s.materials.find((m) => m.id === id);
-      if (!ownSessions().some((x) => x.id === m?.sessionId)) return;
-      m.status =
-        a === "publish-material"
-          ? "Đã xuất bản"
-          : a === "archive-material"
-            ? "Đã lưu trữ"
-            : "Bản nháp";
-      persist("Đã cập nhật tài liệu · " + m.status);
-      render();
-    }
-    if (a === "edit-material") {
-      const m = s.materials.find((m) => m.id === id);
-      modal(
-        "Chỉnh sửa tài liệu",
-        /* HTML */ `<form id="edit-material-form" class="stack">
-          ${field("name", "Tên tài liệu", m.name, "text", "required")}${select(
-            "access",
-            "Quyền truy cập",
-            ["Người có vé", "Công khai", "Mở sau session"],
-            m.access,
-          )}${field(
-            "opensAt",
-            "Thời điểm mở (GMT+7)",
-            m.opensAt || "2026-10-19T10:00",
-            "datetime-local",
-          )}<button type="submit" class="primary">Lưu phiên bản mới</button>
-        </form>`,
-      );
-      $("#edit-material-form").addEventListener("submit", (ev) => {
-        ev.preventDefault();
-        Object.assign(m, Object.fromEntries(new FormData(ev.target)), {
-          version: m.version + 1,
-        });
-        $("#modal").close();
-        persist("Đã lưu phiên bản tài liệu v" + m.version);
-        render();
-      });
-    }
-    if (a === "download-material") {
-      const m = s.materials.find((m) => m.id === id);
-      if (!m) return;
-      if (role === "attendee" && !materialVisible(m))
-        return toast("Tài liệu chưa mở cho người tham dự.");
-      if (m.source !== "local")
-        return toast(
-          "Tài liệu mẫu chỉ có metadata. Tải tệp của bạn ở workspace Diễn giả để kiểm tra tải xuống.",
-        );
-      try {
-        const file = await EP.files.get(m.id);
-        if (!file)
-          return toast("Tệp không còn trên thiết bị này. Hãy tải lại.");
-        const u = URL.createObjectURL(file),
-          anchor = document.createElement("a");
-        anchor.href = u;
-        anchor.download = m.name;
-        anchor.click();
-        setTimeout(() => URL.revokeObjectURL(u), 1000);
-      } catch {
-        toast("Không thể mở kho tệp trên thiết bị.");
-      }
-    }
-    if (a === "generate-summary") {
-      const replies = s.feedback.filter(
-        (f) => f.sessionId === id && f.status === "Đã gửi",
-      );
-      const result = EventAI.summary(replies);
-      s.aiDrafts.summary = { sessionId: id, ...result };
-      $("#summary-result").innerHTML = result.text
-        ? /* HTML */ `<div class="result">
-            <strong>Có giải thích · Bạn quyết định</strong>
-            <p>${e(result.text)}</p>
-            <p>${e(result.reason)}</p>
-            <small>Nguồn: ${result.sources.map(e).join(", ")}</small>
-            <div>
-              ${btn("accept-summary", "Dùng tóm tắt", id, "primary")}
-              ${btn("edit-summary", "Chỉnh sửa", id)}
-              ${btn("reject-summary", "Từ chối", id)}
-            </div>
-          </div>`
-        : "<p>Chưa đủ dữ liệu. Bạn có thể tóm tắt thủ công từ phản hồi gốc.</p>";
-    }
-    if (a === "accept-summary") {
-      if (s.aiDrafts.summary?.sessionId !== id) return;
-      s.summaries[id] = s.aiDrafts.summary.text;
-      persist("Đã chấp nhận tóm tắt phản hồi");
-      $("#manual-summary").value = s.summaries[id];
-    }
-    if (a === "edit-summary") {
-      $("#manual-summary").value = s.aiDrafts.summary?.text || "";
-      $("#manual-summary").focus();
-    }
-    if (a === "reject-summary") {
-      $("#summary-result").innerHTML =
-        "<p>Đã bỏ qua đề xuất. Tóm tắt đã lưu được giữ nguyên.</p>";
-    }
-    if (a === "save-manual-summary") {
-      const text = $("#manual-summary").value.trim();
-      if (!text) return toast("Nhập nội dung tóm tắt trước khi lưu.");
-      s.summaries[id] = text;
-      persist("Đã lưu tóm tắt thủ công");
-    }
-    if (a === "save-ai-draft") {
-      if (!s.aiDrafts[el.dataset.id])
-        return toast("Tạo gợi ý trước khi lưu bản demo.");
-      persist("Đã lưu bản gợi ý demo · Chưa áp dụng thay đổi");
-    }
-    if (a === "answer-question") {
-      const q = s.questions.find((q) => q.id === id);
-      modal(
-        "Trả lời câu hỏi",
-        /* HTML */ `<p>${e(q.text)}</p>
-          <form id="answer-form" class="stack">
-            <label
-              >Câu trả lời<textarea
-                name="answer"
-                required
-                minlength="10"
-              ></textarea></label
-            ><button type="submit" class="primary">Gửi câu trả lời</button>
-          </form>`,
-      );
-      $("#answer-form").addEventListener("submit", (ev) => {
-        ev.preventDefault();
-        q.answer = ev.target.elements.answer.value.trim();
-        $("#modal").close();
-        persist("Đã trả lời câu hỏi");
-        render();
-      });
-    }
-    if (a === "toggle-ticket") {
-      const t = s.tickets.find((x) => x.id === id);
-      confirmAction(
-        "Thay đổi trạng thái vé",
-        `${t.sold || 0} vé đã thanh toán vẫn giữ quyền lợi. Chỉ thay đổi việc bán mới.`,
-        () => {
-          t.status = t.status === "Tạm dừng" ? "Đang bán" : "Tạm dừng";
-          persist("Đã cập nhật trạng thái loại vé");
-          render();
-        },
-      );
-    }
-    if (a === "save-forecast") {
-      s.forecasts.unshift({
-        at: new Date().toLocaleString("vi-VN"),
-        rows: EventAI.forecast(sessions()).map((r) => ({
-          session: r.session.title,
-          predicted: r.predicted,
-          capacity: r.session.capacity,
-          confidence: r.confidence,
-        })),
-      });
-      persist("Đã lưu bản dự báo · Chưa đổi phòng");
-      render();
-    }
-    if (a === "export-analytics")
-      modal(
-        "Xuất báo cáo",
-        /* HTML */ `<p>
-            Báo cáo theo dữ liệu hiện tại, không chứa tên/email người dùng.
-          </p>
-          <div class="form-actions">
-            ${btn("analytics-csv", "Tải CSV", "", "primary")}${btn(
-              "analytics-print",
-              "Lưu PDF / In",
-            )}
-          </div>
-          <p class="ai-note">
-            Chọn Lưu PDF trong hộp thoại in của trình duyệt.
-          </p>`,
-      );
-    if (a === "analytics-csv") {
-      EP.export(
-        "eventpulse-analytics",
-        s.tickets.map((t) => ({
-          type: t.name,
-          sold: t.sold || 0,
-          recordedRevenue: t.revenue || 0,
-          quota: t.quantity,
-        })),
-      );
-      toast("Đã xuất báo cáo CSV");
-    }
-    if (a === "analytics-print") {
-      $("#modal").close();
-      window.print();
-    }
-    if (a === "note-session") {
-      modal(
-        "Ghi chú session",
-        /* HTML */ `<form id="note-form" class="stack">
-          <label
-            >Ghi chú<textarea name="note" maxlength="1000">
-${e(s.notes[id] || "")}</textarea
-            ></label
-          ><button type="submit" class="primary">Lưu ghi chú</button>
-        </form>`,
-      );
-      $("#note-form").addEventListener("submit", (ev) => {
-        ev.preventDefault();
-        s.notes[id] = ev.target.elements.note.value.trim();
-        $("#modal").close();
-        persist("Đã lưu ghi chú");
-        render();
-      });
-    }
-    if (a === "recording-session") {
-      const item = s.sessions.find((x) => x.id === id);
-      if (!item?.recording) return;
-      s.recordings.push(id);
-      removeAgenda(id);
-      toast("Đã chuyển sang bản ghi · Chỗ trực tiếp được nhường lại");
-    }
-    if (a === "calendar-export") {
-      const esc = (v) =>
-        String(v)
-          .replace(/\\/g, "\\\\")
-          .replace(/\n/g, "\\n")
-          .replace(/,/g, "\\,")
-          .replace(/;/g, "\\;");
-      const lines = [
-        "BEGIN:VCALENDAR",
-        "VERSION:2.0",
-        "PRODID:-//EventPulse//Demo//VI",
-        ...agenda().flatMap((x) => [
-          "BEGIN:VEVENT",
-          "UID:" + x.id + "@eventpulse.demo",
-          "DTSTAMP:" +
-            new Date()
-              .toISOString()
-              .replace(/[-:]/g, "")
-              .replace(/\.\d+Z/, "Z"),
-          "DTSTART;TZID=Asia/Ho_Chi_Minh:" +
-            x.date.replaceAll("-", "") +
-            "T" +
-            x.start.replace(":", "") +
-            "00",
-          "DTEND;TZID=Asia/Ho_Chi_Minh:" +
-            x.date.replaceAll("-", "") +
-            "T" +
-            x.end.replace(":", "") +
-            "00",
-          "SUMMARY:" + esc(x.title),
-          "LOCATION:" + esc(x.room),
-          "DESCRIPTION:" + esc(s.notes[x.id] || ""),
-          "END:VEVENT",
-        ]),
-        "END:VCALENDAR",
-      ];
-      const u = URL.createObjectURL(
-          new Blob([lines.join("\r\n")], {
-            type: "text/calendar;charset=utf-8",
-          }),
-        ),
-        a = document.createElement("a");
-      a.href = u;
-      a.download = "eventpulse-agenda.ics";
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(u), 1000);
-    }
-    if (a === "restore-settings") {
-      if (!s.previousSettings) return toast("Chưa có bản cấu hình trước.");
-      const prev = s.previousSettings;
-      s.previousSettings = { ...s.settings };
-      s.settings = prev;
-      persist("Đã khôi phục cấu hình trước");
-      shell();
-      render();
-    }
-    if (a === "test-integration") {
-      s.settings.integration = "Đã kết nối (mô phỏng)";
-      persist("Kiểm tra kết nối demo thành công");
-      render();
-    }
-    if (a === "disconnect-integration")
-      confirmAction(
-        "Ngắt kết nối demo",
-        "Dừng đồng bộ Check-in API? Dữ liệu gần nhất vẫn được bảo toàn.",
-        () => {
-          s.settings.integration = "Đã ngắt kết nối";
-          persist("Đã ngắt kết nối demo");
-          render();
-        },
-      );
-    if (a === "integration-info")
-      modal(
-        "Tích hợp dữ liệu",
-        /* HTML */ `<p>
-          ${e(el.dataset.id)} chỉ là trạng thái mô phỏng. Không có kết nối dịch
-          vụ bên ngoài.
-        </p>`,
-      );
-    if (a === "sync-demo") {
-      persist("Đã mô phỏng đồng bộ dữ liệu · Giữ số liệu hiện tại");
-    }
-    if (a === "cancel-alert")
-      confirmAction(
-        "Hủy lịch gửi",
-        "Thông báo chưa được gửi; có thể lên lịch lại.",
-        () => {
-          s.alerts.find((a) => a.id === id).status = "Đã hủy";
-          persist("Đã hủy lịch gửi");
-          render();
-        },
-      );
-    if (a === "edit-alert") composeAlert(id);
-    if (a === "alert-results") {
-      const alert = s.alerts.find((a) => a.id === id);
-      modal(
-        "Kết quả gửi demo",
-        /* HTML */ `<p>${e(alert.title)}</p>
-          <p>
-            ${alert.delivered ??
-            alert.recipients ??
-            s.users.length}/${alert.recipients ?? s.users.length}
-            người nhận · ${e(alert.channels || "Push")}
-          </p>
-          <p>Số liệu mô phỏng; không gửi email, SMS hoặc push thật.</p>
-          ${link("attendee-my-agenda", "Mở Agenda của tôi →")}`,
-      );
-    }
-    if (a === "lock-user") {
-      const user = s.users.find((x) => x.id === id);
-      modal(
-        user.status === "Đã khóa" ? "Mở khóa tài khoản" : "Khóa tài khoản",
-        /* HTML */ `<p>Vé và phản hồi của ${e(user.name)} được bảo toàn.</p>
-          <form id="lock-form" class="stack">
-            ${field(
-              "reason",
-              "Lý do *",
-              "",
-              "text",
-              'required minlength="5"',
-            )}<button type="submit" class="danger">Xác nhận</button>
-          </form>`,
-      );
-      $("#lock-form").addEventListener("submit", (ev) => {
-        ev.preventDefault();
-        user.status = user.status === "Đã khóa" ? "Hoạt động" : "Đã khóa";
-        $("#modal").close();
-        persist(
-          "Đã cập nhật tài khoản " +
-            user.name +
-            " · " +
-            ev.target.elements.reason.value.trim(),
-        );
-        render();
-      });
-    }
-    if (a === "approve-session") {
-      const item = s.sessions.find((x) => x.id === id);
-      editEntity("sessions", id);
-      $('[name="status"]').value = "Đã duyệt";
-    }
-  });
   async function loadProfileAvatar() {
     if (!state().profile.hasAvatar) return;
     try {
@@ -3861,13 +3344,401 @@ ${e(s.notes[id] || "")}</textarea
           ))
     );
   }
+  function editEntity(kind, id, speakerOnly = false) {
+    const item = state()[kind].find((x) => x.id === id) || {},
+      isNew = !item.id;
+    let fields = "";
+    if (kind === "sessions")
+      fields =
+        field(
+          "title",
+          "Tên session *",
+          item.title,
+          "text",
+          'required maxlength="200"',
+        ) +
+        select(
+          "topic",
+          "Chủ đề",
+          ["AI & Data", "Product", "Fintech"],
+          item.topic,
+        ) +
+        field(
+          "speaker",
+          "Diễn giả *",
+          item.speaker || state().profile.name,
+          "text",
+          'required maxlength="100"',
+        ) +
+        field(
+          "date",
+          "Ngày *",
+          item.date || "2026-10-19",
+          "date",
+          'required min="${state().settings.start.slice(0,10)}" max="${state().settings.end.slice(0,10)}"',
+        ) +
+        field("start", "Bắt đầu *", item.start || "09:00", "time", "required") +
+        field("end", "Kết thúc *", item.end || "10:00", "time", "required") +
+        select(
+          "room",
+          "Phòng",
+          state()
+            .rooms.filter((r) => r.status !== "Đã lưu trữ")
+            .map((r) => r.name),
+          item.room,
+        ) +
+        select(
+          "status",
+          "Trạng thái",
+          [
+            "Chờ duyệt",
+            "Đã duyệt",
+            "Hoàn thành",
+            "Bị từ chối",
+            "Đã hủy",
+            "Bản nháp",
+            "Đã lưu trữ",
+          ],
+          item.status || "Chờ duyệt",
+        ) +
+        /* HTML */ `<label class="full"
+          >Mô tả<textarea name="description" maxlength="3000">
+${e(item.description || "")}</textarea
+          >
+        </label>`;
+    if (speakerOnly)
+      fields =
+        field(
+          "title",
+          "Tên session *",
+          item.title,
+          "text",
+          'required maxlength="200"',
+        ) +
+        /* HTML */ `<label class="full"
+          >Nội dung *<textarea name="description" required maxlength="3000">
+${e(item.description)}</textarea
+          >
+        </label>`;
+    if (kind === "rooms")
+      fields =
+        field(
+          "equipment",
+          "Thiết bị",
+          item.equipment || "Máy chiếu · Mic · Ghi hình",
+        ) +
+        field(
+          "name",
+          "Tên phòng *",
+          item.name,
+          "text",
+          'required maxlength="100"',
+        ) +
+        field(
+          "capacity",
+          "Sức chứa *",
+          item.capacity || 120,
+          "number",
+          'required min="1" max="10000" step="1"',
+        ) +
+        field(
+          "location",
+          "Vị trí *",
+          item.location,
+          "text",
+          'required maxlength="200"',
+        );
+    if (kind === "users")
+      fields =
+        field(
+          "name",
+          "Họ tên *",
+          item.name,
+          "text",
+          'required maxlength="100"',
+        ) +
+        field("email", "Email *", item.email, "email", "required") +
+        select(
+          "role",
+          "Vai trò",
+          Object.values(groups).map((g) => g[0]),
+          item.role,
+        ) +
+        select(
+          "status",
+          "Trạng thái",
+          ["Hoạt động", "Chờ xác thực", "Đã khóa"],
+          item.status,
+        );
+    if (kind === "tickets")
+      fields =
+        field(
+          "start",
+          "Bắt đầu bán *",
+          item.start || "2026-09-01T00:00",
+          "datetime-local",
+          "required",
+        ) +
+        field(
+          "end",
+          "Kết thúc bán *",
+          item.end || "2026-10-17T23:59",
+          "datetime-local",
+          "required",
+        ) +
+        field(
+          "name",
+          "Tên loại vé *",
+          item.name,
+          "text",
+          'required maxlength="100"',
+        ) +
+        field(
+          "price",
+          "Giá vé (VNĐ) *",
+          item.price ?? 299000,
+          "number",
+          'required min="0" max="100000000" step="1000"',
+        ) +
+        field(
+          "quantity",
+          "Số lượng *",
+          item.quantity ?? 100,
+          "number",
+          'required min="0" max="100000" step="1"',
+        ) +
+        select(
+          "status",
+          "Trạng thái",
+          ["Đang bán", "Tạm dừng", "Đã hết"],
+          item.status,
+        );
+    modal(
+      (isNew ? "Thêm mới" : "Chỉnh sửa") +
+        " · " +
+        {
+          sessions: "Session",
+          rooms: "Phòng",
+          users: "Người dùng",
+          tickets: "Loại vé",
+        }[kind],
+      /* HTML */ `<form id="entity-form" class="form-grid">
+        ${fields}
+        <p id="form-error" class="error full" role="alert"></p>
+        <div class="form-actions full">
+          ${btn("close", "Hủy")}<button type="submit" class="primary">
+            Lưu thay đổi
+          </button>
+        </div>
+      </form>`,
+    );
+    $("#entity-form").addEventListener("submit", (ev) => {
+      ev.preventDefault();
+      const d = Object.fromEntries(new FormData(ev.target));
+      for (const k in d) d[k] = d[k].trim();
+      const error = (msg) => {
+        $("#form-error").textContent = msg;
+      };
+      if (Object.entries(d).some(([k, v]) => !v && k !== "description"))
+        return error("Vui lòng nhập đầy đủ nội dung.");
+      for (const k of ["capacity", "price", "quantity"])
+        if (k in d) d[k] = Number(d[k]);
+      if (
+        kind === "tickets" &&
+        (d.quantity < (item.sold || 0) || d.end <= d.start)
+      )
+        return error(
+          "Quota phải ≥ số vé đã bán; kết thúc bán phải sau bắt đầu.",
+        );
+      if (
+        kind === "rooms" &&
+        state().rooms.some(
+          (r) => r.id !== id && r.name.toLowerCase() === d.name.toLowerCase(),
+        )
+      )
+        return error("Tên phòng đã tồn tại.");
+      if (
+        kind === "rooms" &&
+        sessions().some((s) => s.room === item.name && s.booked > d.capacity)
+      )
+        return error("Sức chứa mới nhỏ hơn số người đã đặt.");
+      if (
+        kind === "users" &&
+        state().users.some(
+          (u) => u.id !== id && u.email.toLowerCase() === d.email.toLowerCase(),
+        )
+      )
+        return error("Email đã tồn tại.");
+      if (kind === "sessions" && !speakerOnly) {
+        if (d.start >= d.end)
+          return error("Giờ kết thúc phải sau giờ bắt đầu.");
+        const room = state().rooms.find((r) => r.name === d.room);
+        if (!room) return error("Hãy tạo phòng trước khi tạo session.");
+        if (
+          d.date < state().settings.start.slice(0, 10) ||
+          d.date > state().settings.end.slice(0, 10)
+        )
+          return error("Ngày session phải thuộc khoảng ngày sự kiện.");
+        if (d.description.trim().length < 80)
+          return error("Mô tả session cần ít nhất 80 ký tự.");
+        if ((item.booked || 0) > room.capacity)
+          return error("Phòng không đủ chỗ cho người đã đặt.");
+        if (
+          ["Đã duyệt", "Hoàn thành"].includes(d.status) &&
+          sessions().some(
+            (s) =>
+              s.id !== id &&
+              EventAI.overlap(s, d) &&
+              (s.room === d.room || s.speaker === d.speaker),
+          )
+        )
+          return error(
+            "Trùng thời gian phòng hoặc diễn giả. Hãy chọn khung giờ khác.",
+          );
+        d.public = ["Đã duyệt", "Hoàn thành"].includes(d.status);
+        d.capacity = room.capacity;
+        d.image =
+          d.topic === "Product"
+            ? "product"
+            : d.topic === "Fintech"
+              ? "fintech"
+              : "ai";
+      }
+      if (isNew)
+        state()[kind].push({
+          id: Date.now(),
+          ...(kind === "sessions"
+            ? { booked: 0, saves: 0, feedbackCount: 0 }
+            : {}),
+          ...d,
+        });
+      else {
+        const oldName = item.name,
+          oldRoom = item.room;
+        Object.assign(item, d);
+        if (kind === "sessions" && oldRoom !== d.room && item.public) {
+          state().alerts.unshift({
+            id: Date.now() + 1,
+            title: "Thay đổi phòng · " + item.title,
+            message: `Session ${item.title} chuyển từ ${oldRoom || "chưa gán"} sang ${item.room}, lúc ${item.start}. Agenda dùng lịch mới.`,
+            priority: "Quan trọng",
+            status: "Nháp",
+            sessionId: id,
+            channels: "Push + Email",
+            recipients: item.booked,
+          });
+        }
+        if (kind === "rooms")
+          state()
+            .sessions.filter((s) => s.room === oldName)
+            .forEach((s) => {
+              s.room = d.name;
+              s.capacity = d.capacity;
+            });
+        if (
+          kind === "sessions" &&
+          ["Đã hủy", "Đã lưu trữ"].includes(d.status)
+        ) {
+          state().agenda = state().agenda.filter((x) => x !== id);
+          state().waitlist = state().waitlist.filter((x) => x !== id);
+        }
+      }
+      $("#modal").close();
+      persist(
+        "Đã lưu " +
+          {
+            sessions: "session",
+            rooms: "phòng",
+            users: "người dùng",
+            tickets: "loại vé",
+          }[kind],
+      );
+      render();
+    });
+  }
 
-  document.addEventListener("click", (ev) => {
+  /* -------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------
+  ============================== 7. BỘ ĐỊNH TUYẾN ==================================
+  ----------------------------------------------------------------------------------
+  ----------------------------------------------------------------------------------*/
+
+  const views = {
+    "attendee-session-catalog": catalog,
+    "attendee-session-detail": detail,
+    "attendee-my-agenda": myAgenda,
+    "attendee-session-feedback": feedback,
+  };
+  function render() {
+    if (route === "home") return home();
+    (
+      views[route] ||
+      (() =>
+        ($("#content").innerHTML = heading(
+          "Không tìm thấy trang",
+          "Hãy quay lại danh mục session.",
+          link(role + "-" + groups[role][1][0][0], "Trang chủ"),
+        )))
+    )();
+    if (route === "speaker-profile") loadProfileAvatar();
+  }
+  function addAgenda(id) {
+    const s = sessions().find((s) => s.id === id);
+    if (!s) return;
+    if (state().agenda.includes(id)) return;
+    if (s.booked >= s.capacity) {
+      toast("Session đã đầy. Vui lòng tham gia danh sách chờ.");
+      return;
+    }
+    state().agenda.push(id);
+    s.booked++;
+    s.saves++;
+    persist(
+      EventAI.conflicts(agenda()).length
+        ? "Đã thêm lịch · Có xung đột, kiểm tra Agenda."
+        : "Đã thêm vào agenda",
+    );
+    render();
+  }
+  function removeAgenda(id) {
+    const s = state().sessions.find((s) => s.id === id);
+    if (state().agenda.includes(id) && s) {
+      s.booked = Math.max(0, s.booked - 1);
+      s.saves = Math.max(0, s.saves - 1);
+    }
+    state().agenda = state().agenda.filter((x) => x !== id);
+    persist("Đã bỏ khỏi agenda");
+    render();
+  }
+  function confirmAction(title, text, callback) {
+    modal(
+      title,
+      /* HTML */ `<p>${e(text)}</p>
+        <div class="form-actions">
+          ${btn("close", "Quay lại")}<button
+            type="button"
+            id="confirm"
+            class="danger"
+          >
+            Xác nhận
+          </button>
+        </div>`,
+    );
+    $("#confirm").addEventListener("click", () => {
+      $("#modal").close();
+      callback();
+    });
+  }
+
+  document.addEventListener("click", async (ev) => {
     const el = ev.target.closest("[data-action]");
     if (!el) return;
     ev.preventDefault();
-    const a = el.dataset.action,
-      id = Number(el.dataset.id);
+
+    const a = el.dataset.action;
+    const id = Number(el.dataset.id);
+
+    // 1. Các hành động dùng chung
     if (a === "close") return $("#modal").close();
     if (a === "menu") {
       $("#sidebar").classList.toggle("open");
@@ -3877,24 +3748,15 @@ ${e(s.notes[id] || "")}</textarea
       );
       return;
     }
-    if (a === "help")
+    if (a === "help") {
       return modal(
         "Hướng dẫn demo",
-        /* HTML */ `<p>
-            Dự án Người tham dự gồm bốn màn hình và lưu dữ liệu riêng trên thiết
-            bị này.
-          </p>
-          <p>
-            Thử tìm và thêm session → kiểm tra Agenda → gửi phản hồi. Với ban tổ
-            chức, tạo session / phòng và chạy dự báo để xem phương án đổi phòng.
-          </p>
-          <p>
-            Bốn tính năng AI sử dụng quy tắc giả lập. Vai trò demo không phải cơ
-            chế đăng nhập hay phân quyền bảo mật.
-          </p>
-          ${btn("close", "Đã hiểu", "", "primary")}`,
+        `<p>Dự án Người tham dự gồm bốn màn hình và lưu dữ liệu riêng trên thiết bị này.</p>
+         <p>Thử tìm và thêm session → kiểm tra Agenda → gửi phản hồi.</p>
+         ${btn("close", "Đã hiểu", "", "primary")}`,
       );
-    if (a === "notifications")
+    }
+    if (a === "notifications") {
       return modal(
         "Thông báo",
         state().settings.notifications
@@ -3902,232 +3764,38 @@ ${e(s.notes[id] || "")}</textarea
               .alerts.filter((a) => a.status === "Đã gửi")
               .map(
                 (a) =>
-                  /* HTML */ `<div class="result">
-                    <strong>${e(a.title)}</strong>
-                    <p>${e(a.message)}</p>
-                  </div>`,
+                  `<div class="result"><strong>${e(a.title)}</strong><p>${e(a.message)}</p></div>`,
               )
               .join("") || empty("Chưa có thông báo")
           : "<p>Bạn đã tắt thông báo trong cấu hình.</p>",
       );
+    }
     if (a === "add-agenda") return addAgenda(id);
-    if (a === "remove-agenda")
+    if (a === "remove-agenda") {
       return confirmAction(
         "Gỡ session",
         "Chỗ trực tiếp sẽ được nhường lại. Bạn muốn gỡ session này?",
         () => removeAgenda(id),
       );
-    if (a === "waitlist") {
-      state().waitlist = state().waitlist.includes(id)
-        ? state().waitlist.filter((x) => x !== id)
-        : [...state().waitlist, id];
-      persist("Đã cập nhật danh sách chờ");
-      render();
-      return;
     }
-    if (a === "grid" || a === "list") {
-      $("#catalog").classList.toggle("list", a === "list");
-      return;
-    }
-    if (a === "reset-filters") {
-      for (const n of ["search", "date", "topic", "speaker", "availability"])
-        $("#" + n).value = "";
-      filterCatalog();
-      return;
-    }
-    if (a === "recommend") return recommend();
-    if (a === "resolve") return resolve();
-    if (a === "accept-recommend") {
-      const s = sessions().find((s) => s.id === id);
-      if (!s || agenda().some((x) => EventAI.overlap(x, s))) {
-        toast("Agenda đã thay đổi. Hãy chạy lại gợi ý.");
-        return;
-      }
-      addAgenda(id);
-      el.closest(".result").remove();
-      return;
-    }
-    if (a === "dismiss-result") {
-      el.closest(".result").remove();
-      return;
-    }
-    if (a === "draft-feedback") return saveFeedback("Nháp");
-    if (a === "delete-feedback")
-      return confirmAction(
-        "Xóa phản hồi",
-        "Bạn muốn xóa phản hồi và bản nháp?",
-        () => {
-          const sessionId = parseInt(
-            $("#feedback-form").elements.sessionId.value,
-          );
-          const f = state().feedback.find(
-            (f) => f.id === "personal-" + sessionId,
-          );
-          if (f?.status === "Đã gửi") {
-            const s = state().sessions.find((s) => s.id === f.sessionId);
-            if (s) s.feedbackCount = Math.max(0, s.feedbackCount - 1);
-          }
-          state().feedback = state().feedback.filter(
-            (f) => f.id !== "personal-" + sessionId,
-          );
-          persist("Đã xóa phản hồi");
-          render();
-        },
-      );
-    if (a === "delete-material")
-      return confirmAction(
-        "Xóa tài liệu",
-        "Xóa thông tin tài liệu khỏi demo?",
-        () => {
-          EP.files.remove(id).catch(() => {});
-          state().materials = state().materials.filter((m) => m.id !== id);
-          persist("Đã xóa thông tin tài liệu");
-          render();
-        },
-      );
-    if (a === "speaker-edit") return editEntity("sessions", id, true);
-    if (a.startsWith("create-")) return editEntity(a.slice(7), 0);
-    if (
-      a.startsWith("edit-") &&
-      ["sessions", "rooms", "users", "tickets"].includes(a.slice(5))
-    )
-      return editEntity(a.slice(5), id);
-    if (a.startsWith("export-")) {
-      const kind = a.slice(7);
-      if (kind === "analytics") return;
-      EP.export(
-        "eventpulse-" + kind,
-        kind === "agenda"
-          ? agenda()
-          : kind === "feedback"
-            ? state()
-                .feedback.filter(
-                  (f) =>
-                    f.status === "Đã gửi" && f.sessionId === selectedSession(),
-                )
-                .map((f) => ({
-                  id: f.id,
-                  rating: f.rating,
-                  comment: f.comment,
-                }))
-            : state()[kind] || [],
-      );
-      toast("Đã xuất CSV");
-      return;
-    }
-    if (a === "new-alert") return composeAlert();
-    if (a === "publish-alert")
-      return confirmAction(
-        "Xác nhận phát hành",
-        "Gửi thông báo đến nhóm người nhận trong demo?",
-        () => {
-          state().alerts.find((x) => x.id === id).status = "Đã gửi";
-          persist("Đã phát hành thông báo demo");
-          render();
-        },
-      );
-    if (a === "delete-alert")
-      return confirmAction(
-        "Xóa thông báo",
-        "Bạn muốn xóa thông báo này?",
-        () => {
-          state().alerts = state().alerts.filter((x) => x.id !== id);
-          persist("Đã xóa thông báo");
-          render();
-        },
-      );
-    if (a === "forecast-room") return forecastRoom(id);
-    if (a === "apply-room") {
-      const s = sessions().find((s) => s.id === id),
-        r = state().rooms.find((r) => r.id === Number(el.dataset.room));
-      if (
-        s.booked > r.capacity ||
-        sessions().some(
-          (x) => x.id !== id && x.room === r.name && EventAI.overlap(s, x),
-        )
-      )
-        return toast("Phòng không còn phù hợp. Chạy lại dự báo.");
-      const previous = s.room;
-      s.room = r.name;
-      s.capacity = r.capacity;
-      state().alerts.unshift({
-        id: Date.now(),
-        title: "Đổi phòng · " + s.title,
-        message: `${s.title} chuyển từ ${previous} sang ${r.name}, lúc ${s.start}.`,
-        priority: "Quan trọng",
-        status: "Nháp",
-        sessionId: id,
-        recipients: s.booked,
-        channels: "Push + Email",
-      });
-      $("#modal").close();
-      persist("Đã đổi phòng session sang " + r.name);
-      render();
-      return;
-    }
-    if (a === "reset-data")
-      return confirmAction(
-        "Khôi phục dữ liệu mẫu",
-        "Mọi thay đổi trong demo sẽ được thay bằng dữ liệu mẫu. Tiếp tục?",
-        () => {
-          EP.reset();
-          shell();
-          render();
-          toast("Đã khôi phục dữ liệu mẫu");
-        },
-      );
-    if (
-      a.startsWith("delete-") &&
-      ["sessions", "rooms", "users", "tickets"].includes(a.slice(7))
-    ) {
-      const kind = a.slice(7);
-      const item = state()[kind].find((x) => x.id === id);
-      if (kind === "rooms" && sessions().some((s) => s.room === item.name)) {
-        toast(
-          "Phòng đang có session. Chuyển session sang phòng khác trước khi xóa.",
-        );
-        return;
-      }
-      return confirmAction(
-        kind === "sessions" ? "Lưu trữ session" : "Xóa dữ liệu",
-        "Bạn muốn " +
-          (kind === "sessions"
-            ? "lưu trữ session này và gỡ khỏi lịch công khai?"
-            : "xóa mục này?"),
-        () => {
-          if (kind === "sessions") {
-            item.status = "Đã lưu trữ";
-            item.public = false;
-            state().alerts.unshift({
-              id: Date.now(),
-              title: "Session được lưu trữ · " + item.title,
-              message:
-                "Session " +
-                item.title +
-                " đã được gỡ khỏi chương trình. Vui lòng kiểm tra agenda mới.",
-              priority: "Quan trọng",
-              status: "Nháp",
-              sessionId: id,
-              recipients: item.booked,
-              channels: "Push + Email",
-            });
-            state().agenda = state().agenda.filter((x) => x !== id);
-            state().waitlist = state().waitlist.filter((x) => x !== id);
-          } else state()[kind] = state()[kind].filter((x) => x.id !== id);
-          persist(
-            kind === "sessions" ? "Đã lưu trữ session" : "Đã xóa dữ liệu",
-          );
-          render();
-        },
-      );
-    }
+
+    // 2. Định tuyến về hàm xử lý của từng trang (Phần việc của bạn)
+    if (handleCatalogClicks(a, id, el)) return;
+    if (await handleDetailClicks(a, id)) return;
+    if (handleAgendaClicks(a, id)) return;
+    if (handleFeedbackClicks(a)) return;
+
+    // (Nếu bạn giữ lại code của các Role khác thì dán tiếp các if của Role đó ở đây)
   });
+  // Đóng Modal khi bấm ESC
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Escape") {
       $("#sidebar").classList.remove("open");
       $(".menu-toggle")?.setAttribute("aria-expanded", "false");
     }
   });
+
+  // Khởi chạy ứng dụng
   if (route !== "home") shell();
   render();
   if (EP.warning) toast(EP.warning);
