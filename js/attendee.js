@@ -1098,9 +1098,9 @@
     const form = $("#feedback-form");
     if (
       status === "Đã gửi" &&
-      (!form.reportValidity() || form.elements.comment.value.trim().length < 20)
+      (!form.reportValidity() || form.elements.comment.value.trim().length < 50)
     ) {
-      toast("Nhận xét cần ít nhất 20 ký tự có nội dung.");
+      toast("Đánh giá quá ngắn! Cần tối thiểu 50 ký tự.");
       return;
     }
     const d = new FormData(form);
