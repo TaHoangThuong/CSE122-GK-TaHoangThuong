@@ -735,7 +735,7 @@
               class="${
                 s.booked >= s.capacity
                   ? "capacity-full"
-                  : s.booked / s.capacity > 0.9
+                  : s.booked / s.capacity > 0.5
                     ? "capacity-warn"
                     : ""
               }"
