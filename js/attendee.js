@@ -829,7 +829,7 @@
       (conflicts.length
         ? `<div class="banner warning">
             <div>
-              <strong>⚠ Phát hiện ${conflicts.length} xung đột</strong>
+              <strong>⚠ Cảnh báo: Bạn có ${conflicts.length} phiên bị trùng giờ</strong>
               <p>Hai session trùng thời gian. Xem đề xuất để điều chỉnh.</p>
             </div>
             ${btn("resolve", "Giải quyết ngay", "", "primary")}
