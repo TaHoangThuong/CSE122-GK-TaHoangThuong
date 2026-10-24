@@ -291,7 +291,7 @@
           }</span
         >
       </div>
-      <h3>${e(s.title)} ${s.booked >= 100 ? "🔥" : ""}</h3>
+      <h3>${e(s.title)}</h3>
       <div class="speaker-line">
         <span class="avatar"
           >${e(
@@ -378,7 +378,7 @@
   ----------------------------------------------------------------------------------
   ----------------------------------------------------------------------------------*/
 
-  // Hàm render chính
+  // render UI cho trang
   function catalog() {
     const pref = state().preferences;
     $("#content").innerHTML =
@@ -503,7 +503,7 @@
       persist("Đã lưu sở thích");
     });
   }
-  // Các hàm logic & AI
+  // xử lí việc lọc dữ liệu
   function filterCatalog() {
     const q = $("#search").value.trim().toLocaleLowerCase("vi");
     const rows = sessions().filter(
