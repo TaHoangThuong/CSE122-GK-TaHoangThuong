@@ -291,7 +291,7 @@
           }</span
         >
       </div>
-      <h3>${e(s.title)} ${s.booked >= 100 ? "HOT" : ""}</h3>
+      <h3>${e(s.title)} ${s.booked >= 100 ? "🔥" : ""}</h3>
       <div class="speaker-line">
         <span class="avatar"
           >${e(
